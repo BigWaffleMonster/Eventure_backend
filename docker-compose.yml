@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    networks:
+      - app-network
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: a@a.a # Replace with your desired email
+      PGADMIN_DEFAULT_PASSWORD: admin # Replace with  strong password
+    networks:
+      - app-network
+    ports:
+      - "5050:80" # Access pgAdmin on localhost:5050
+    depends_on:
+      - postgres
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: go-app
+  #   environment:
+  #     DB_HOST: ${DB_HOST}
+  #     DB_PORT: ${DB_PORT}
+  #     DB_USER: ${DB_USER}
+  #     DB_PASSWORD: ${DB_PASSWORD}
+  #     DB_NAME: ${DB_NAME}
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #     - "${APP_PORT}:${APP_PORT}"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
