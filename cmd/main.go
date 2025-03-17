@@ -19,7 +19,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 		return
 	}
-	// Подключение к PostgreSQL
+	// Подключение к PostgreSQL 11
 	db, err := utils.InitDB()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
