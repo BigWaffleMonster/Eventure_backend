@@ -3,19 +3,29 @@ package controller
 import (
 	"net/http"
 
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/service"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/views"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/application/services"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/application/views"
 	"github.com/gin-gonic/gin"
 )
 
 type EventController struct {
-	Service *service.EventService
+	Service *services.EventService
 }
 
-func NewEventController(service *service.EventService) *EventController {
+func NewEventController(service *services.EventService) *EventController {
 	return &EventController{Service: service}
 }
 
+// @summary create Event
+// @schemes
+// @description create Event
+// @tags example
+// @accept json
+// @produce json
+// @param event body views.EventInfo false "Event"
+// @success 201 {string} Successfully created!
+// @failure 400 {string} string "error"
+// @router /event [post]
 func (c *EventController) Create(ctx *gin.Context) {
 	var body views.EventInfo
 

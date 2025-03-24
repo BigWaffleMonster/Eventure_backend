@@ -1,17 +1,17 @@
-package service
+package services
 
 import (
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/models"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/repository"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/views"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/application/views"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain/models"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/infrastructure/repositories"
 	"github.com/google/uuid"
 )
 
 type EventService struct {
-	Repo *repository.EventRepository
+	Repo *repositories.EventRepository
 }
 
-func NewEventService(repo *repository.EventRepository) *EventService {
+func NewEventService(repo *repositories.EventRepository) *EventService {
 	return &EventService{Repo: repo}
 }
 
