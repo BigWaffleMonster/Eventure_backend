@@ -19,7 +19,7 @@ type Event struct {
 	DateCreated          time.Time
 	DateUpdated          time.Time `gorm:"autoCreateTime"`
 
-	User  User   `gorm:"foreignKey:OwnerID"`
+	User  User   `gorm:"foreignKey:OwnerID;unique"`
 	Users []User `gorm:"many2many:participants;"`
 
 	CategoryID uuid.UUID `gorm:"unique"`

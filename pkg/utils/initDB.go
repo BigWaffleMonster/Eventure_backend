@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -27,6 +28,13 @@ func InitDB() (*gorm.DB, error) {
 		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
 			log.Println("Successfully connected to the database!")
+		}
+
+		err = db.SetupJoinTable(&models.User{}, "Events", &models.Participant{})
+		db.AutoMigrate(&models.User{}, &models.Event{}, &models.Category{}, &models.Participant{}, &models.Notification{})
+
+		if err == nil {
+			log.Println("Successfully migrate!")
 			return db, nil
 		}
 

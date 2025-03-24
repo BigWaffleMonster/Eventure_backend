@@ -4,9 +4,9 @@ import (
 	"log"
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/controller"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/models"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/repository"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/service"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/service/auth_service"
+
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -26,12 +26,10 @@ func main() {
 	}
 
 	// Автомиграция
-	err = db.SetupJoinTable(&models.User{}, "Events", &models.Participant{})
-	db.AutoMigrate(&models.User{}, &models.Event{}, &models.Category{}, &models.Participant{}, &models.Notification{})
 
 	// Инициализация слоев
 	userRepo := repository.NewUserRepository(db)
-	authService := service.NewAuthService(userRepo)
+	authService := auth_service.NewAuthService(userRepo)
 	authController := controller.NewAuthController(authService)
 
 	// Настройка маршрутизатора
