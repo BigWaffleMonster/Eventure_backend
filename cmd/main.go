@@ -32,18 +32,22 @@ func main() {
 	authService := auth_service.NewAuthService(userRepo)
 	authController := controller.NewAuthController(authService)
 
+	eventRepo := repository.NewEventRepository(db)
+	eventService := service.NewEventService(eventRepo)
+	eventController := controller.NewEventController(eventService)
+
 	// Настройка маршрутизатора
 	router := gin.Default()
 
 	api := router.Group("/api")
 	{
 		api.POST("/register", authController.Register)
-		// api.POST("/login", authController.Login)
+		api.POST("/event", eventController.Create)
 	}
 
 	// Запуск сервера
-	log.Println("Server is running on port 8080...")
-	if err := router.Run(":8080"); err != nil {
+	log.Println("Server is running on port 5001...")
+	if err := router.Run(":5001"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
