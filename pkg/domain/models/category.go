@@ -5,6 +5,6 @@ import (
 )
 
 type Category struct {
-	ID    uuid.UUID `gorm:"primaryKey"`
+	ID    uuid.UUID `gorm:"primaryKey;type:uuid"`
 	Title string
 }

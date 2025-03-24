@@ -7,8 +7,8 @@ import (
 )
 
 type Participant struct {
-	UserID      uuid.UUID `gorm:"primaryKey"`
-	EventID     uuid.UUID `gorm:"primaryKey"`
+	UserID      uuid.UUID `gorm:"primaryKey;type:uuid"`
+	EventID     uuid.UUID `gorm:"primaryKey;type:uuid"`
 	Status      string    `sql:"type:ENUM('Yes', 'No', 'Maybe')"`
 	HasAccess   bool
 	Ticket      string

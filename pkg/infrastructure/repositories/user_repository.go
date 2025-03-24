@@ -1,7 +1,7 @@
-package repository
+package repositories
 
 import (
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/models"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain/models"
 	"gorm.io/gorm"
 )
 

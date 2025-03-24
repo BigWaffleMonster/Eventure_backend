@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/models"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
