@@ -54,7 +54,7 @@ func (s *AuthService) Register(data http_models.UserRegisterInput) (string, erro
 	return "Successfully created!", nil
 }
 
-func (s *AuthService) Login(data http_models.UserRegisterInput) (string, error) {
+func (s *AuthService) Login(data http_models.UserLoginInput) (string, error) {
 	if !helpers.IsValidEmail(data.Email) {
 		return "", errors.New("email not valid")
 	}
@@ -67,14 +67,21 @@ func (s *AuthService) Login(data http_models.UserRegisterInput) (string, error) 
 	if data.Password != nil {
 		passwordHashCheckResult := helpers.CheckPasswordHash(existingUser.Password, *data.Password)
 		if !passwordHashCheckResult {
-			return "", errors.New("Password don`t match")
+			return "", errors.New("password don`t match")
 		}
 	} else {
 		//checkTempPassword
 	}
 	//create jwt and send to user
+	token, err := helpers.GenerateAccessToken(existingUser.Email, existingUser.ID)
+	if err != nil {
+		return "", errors.New("error Generating Token")
+	}
+	//!TODO add refresh token
 
-	//if no password send email with temp password. Create func validateTempPassword and after it create jwt. if user has not temp password create jwt
+	return token, nil
+}
 
-	return "Successfully created!", nil
+func (s *AuthService) RefreshToken() {
+
 }

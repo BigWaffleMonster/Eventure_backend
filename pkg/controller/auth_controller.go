@@ -30,7 +30,7 @@ func (c *AuthController) Register(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"message": resp})
+	ctx.JSON(http.StatusCreated, gin.H{"data": resp})
 }
 
 func (c *AuthController) Login(ctx *gin.Context) {
@@ -41,11 +41,49 @@ func (c *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	resp, err := c.Service.Login(body)
+	token, err := c.Service.Login(body)
 	if err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"message": resp})
+	ctx.JSON(http.StatusCreated, gin.H{"data": token})
+}
+
+// !TODO refresh token
+func (c *AuthController) RefreshToken(ctx *gin.Context) {
+	var input struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	// Validate the refresh token
+	claims, err := auth.ValidateRefreshToken(input.RefreshToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
+		return
+	}
+
+	// Generate a new access token
+	newAccessToken, err := auth.GenerateAccessToken(claims.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating access token"})
+		return
+	}
+
+	// Optionally generate a new refresh token
+	newRefreshToken, err := auth.GenerateRefreshToken(claims.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating refresh token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  newAccessToken,
+		"refresh_token": newRefreshToken,
+	})
 }

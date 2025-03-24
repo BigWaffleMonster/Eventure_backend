@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/controller"
+	middlewares "github.com/BigWaffleMonster/Eventure_backend/pkg/middleware"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/repository"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/service/auth_service"
 
@@ -35,11 +36,18 @@ func main() {
 	// Настройка маршрутизатора
 	router := gin.Default()
 
-	api := router.Group("/api")
+	// controllers := []any{*authController}
+	// routes.SetupRoutes(router, controllers)
+
+	public := router.Group("/api/v1")
 	{
-		api.POST("/register", authController.Register)
-		// api.POST("/login", authController.Login)
+		public.POST("/register", authController.Register)
+		public.POST("/login", authController.Login)
+		public.POST("/refresh-token", authController.RefreshToken)
 	}
+
+	protected := router.Group("/api/v1")
+	protected.Use(middlewares.AuthMiddleware())
 
 	// Запуск сервера
 	log.Println("Server is running on port 8080...")
