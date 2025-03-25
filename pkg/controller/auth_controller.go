@@ -5,6 +5,9 @@ import (
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/models/http_models"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/service/auth_service"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/service/auth_service/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/utils"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -56,33 +59,32 @@ func (c *AuthController) RefreshToken(ctx *gin.Context) {
 		RefreshToken string `json:"refresh_token"`
 	}
 
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
 	// Validate the refresh token
-	claims, err := auth.ValidateRefreshToken(input.RefreshToken)
+	claims, err := utils.ValidateRefreshToken(input.RefreshToken)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
 		return
 	}
-
 	// Generate a new access token
-	newAccessToken, err := auth.GenerateAccessToken(claims.Username)
+	newAccessToken, err := helpers.GenerateAccessToken(claims.Email, claims.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating access token"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating access token"})
 		return
 	}
 
 	// Optionally generate a new refresh token
-	newRefreshToken, err := auth.GenerateRefreshToken(claims.Username)
+	newRefreshToken, err := helpers.GenerateRefreshToken(claims.Email, claims.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating refresh token"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating refresh token"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	ctx.JSON(http.StatusOK, gin.H{
 		"access_token":  newAccessToken,
 		"refresh_token": newRefreshToken,
 	})
