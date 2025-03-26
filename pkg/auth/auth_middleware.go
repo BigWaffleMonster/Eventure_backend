@@ -1,11 +1,10 @@
-package middlewares
+package auth
 
 import (
 	"net/http"
 	"os"
 	"strings"
 
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -26,7 +25,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claims := &models.Claims{}
+		claims := &Claims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			return os.Getenv("JWT_SECRETE"), nil
 		})

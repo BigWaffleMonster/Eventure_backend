@@ -3,18 +3,17 @@ package main
 import (
 	"log"
 
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/controller"
-	middlewares "github.com/BigWaffleMonster/Eventure_backend/pkg/middleware"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/repository"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/service/auth_service"
+	v1 "github.com/BigWaffleMonster/Eventure_backend/api/v1"
+	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
+	"github.com/BigWaffleMonster/Eventure_backend/utils"
 
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load("../.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Print(err)
 		log.Fatal("Error loading .env file")
@@ -29,9 +28,9 @@ func main() {
 	// Автомиграция
 
 	// Инициализация слоев
-	userRepo := repository.NewUserRepository(db)
-	authService := auth_service.NewAuthService(userRepo)
-	authController := controller.NewAuthController(authService)
+	userRepo := user.NewUserRepository(db)
+	authService := user.NewAuthService(userRepo)
+	authController := v1.NewAuthController(authService)
 
 	// Настройка маршрутизатора
 	router := gin.Default()
@@ -43,11 +42,11 @@ func main() {
 	{
 		public.POST("/register", authController.Register)
 		public.POST("/login", authController.Login)
-		public.POST("/refresh-token", authController.RefreshToken)
+		// public.POST("/refresh-token", authController.RefreshToken)
 	}
 
 	protected := router.Group("/api/v1")
-	protected.Use(middlewares.AuthMiddleware())
+	protected.Use(auth.AuthMiddleware())
 
 	// Запуск сервера
 	log.Println("Server is running on port 8080...")

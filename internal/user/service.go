@@ -1,27 +1,25 @@
-package auth_service
+package user
 
 import (
 	"errors"
 	"log"
 	"time"
 
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/models"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/models/http_models"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/repository"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/service/auth_service/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/internal/user/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/google/uuid"
 )
 
 type AuthService struct {
-	Repo *repository.UserRepository
+	Repo *UserRepository
 }
 
-func NewAuthService(repo *repository.UserRepository) *AuthService {
+func NewAuthService(repo *UserRepository) *AuthService {
 	return &AuthService{Repo: repo}
 }
 
-func (s *AuthService) Register(data http_models.UserRegisterInput) (string, error) {
-	var userModel models.User
+func (s *AuthService) Register(data UserRegisterInput) (string, error) {
+	var userModel User
 
 	if !helpers.IsValidEmail(data.Email) {
 		return "", errors.New("email not valid")
@@ -54,7 +52,7 @@ func (s *AuthService) Register(data http_models.UserRegisterInput) (string, erro
 	return "Successfully created!", nil
 }
 
-func (s *AuthService) Login(data http_models.UserLoginInput) (string, error) {
+func (s *AuthService) Login(data UserLoginInput) (string, error) {
 	if !helpers.IsValidEmail(data.Email) {
 		return "", errors.New("email not valid")
 	}
@@ -73,7 +71,7 @@ func (s *AuthService) Login(data http_models.UserLoginInput) (string, error) {
 		//checkTempPassword
 	}
 	//create jwt and send to user
-	token, err := helpers.GenerateAccessToken(existingUser.Email, existingUser.ID)
+	token, err := auth.GenerateAccessToken(existingUser.Email, existingUser.ID)
 	if err != nil {
 		return "", errors.New("error Generating Token")
 	}

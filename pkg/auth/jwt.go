@@ -1,20 +1,48 @@
-package helpers
+package auth
 
 import (
+	"errors"
 	"os"
 	"time"
 
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
+// ValidateAccessToken validates the access token
 var accessKey string = os.Getenv("JWT_ACCESS_SECRETE")
 var refreshKey string = os.Getenv("JWT_REFRESH_SECRETE")
 
+func ValidateAccessToken(tokenString string) (*Claims, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return accessKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		return nil, errors.New("invalid access token")
+	}
+
+	return claims, nil
+}
+
+// ValidateRefreshToken validates the refresh token
+func ValidateRefreshToken(tokenString string) (*Claims, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return refreshKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		return nil, errors.New("invalid refresh token")
+	}
+
+	return claims, nil
+}
+
 func GenerateAccessToken(email string, ID uuid.UUID) (string, error) {
 	expirationTime := time.Now().Add(60 * time.Minute) // Token expires in 5 minutes
-	claims := &models.Claims{
+	claims := &Claims{
 		Email: email,
 		ID:    ID,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -28,7 +56,7 @@ func GenerateAccessToken(email string, ID uuid.UUID) (string, error) {
 
 func GenerateRefreshToken(email string, ID uuid.UUID) (string, error) {
 	expirationTime := time.Now().Add(7 * 24 * time.Hour) // Token expires in 5 minutes
-	claims := &models.Claims{
+	claims := &Claims{
 		Email: email,
 		ID:    ID,
 		RegisteredClaims: jwt.RegisteredClaims{

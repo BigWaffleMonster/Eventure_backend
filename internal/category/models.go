@@ -1,4 +1,4 @@
-package models
+package category
 
 import (
 	"github.com/google/uuid"
