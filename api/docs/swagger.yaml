@@ -1,0 +1,282 @@
+definitions:
+  event.EventInput:
+    description: event information
+    properties:
+      category:
+        format: uuid
+        type: string
+      description:
+        description: "OwnerID\t\t\t     uuid.UUID"
+        example: My best birth day
+        type: string
+      endAt:
+        format: date-time
+        type: string
+      location:
+        example: My best home
+        type: string
+      maxQtyParticipants:
+        example: 30
+        type: integer
+      private:
+        default: false
+        type: boolean
+      startAt:
+        format: date-time
+        type: string
+      title:
+        example: My best birth day
+        type: string
+    type: object
+  event.EventView:
+    properties:
+      categoryID:
+        type: string
+      dateCreated:
+        type: string
+      dateUpdated:
+        type: string
+      description:
+        type: string
+      endDate:
+        type: string
+      id:
+        type: string
+      location:
+        type: string
+      maxQtyParticipants:
+        type: integer
+      ownerId:
+        type: string
+      private:
+        type: boolean
+      startDate:
+        type: string
+      title:
+        type: string
+    type: object
+  user.UserLoginInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  user.UserRegisterInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /event:
+    get:
+      consumes:
+      - application/json
+      description: get Events
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/event.EventView'
+            type: array
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: get Events
+      tags:
+      - event
+    post:
+      consumes:
+      - application/json
+      description: create Event
+      parameters:
+      - description: Event
+        in: body
+        name: event
+        schema:
+          $ref: '#/definitions/event.EventInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: create Event
+      tags:
+      - event
+  /event/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete Event
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: delete Event
+      tags:
+      - event
+    get:
+      consumes:
+      - application/json
+      description: get Event
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/event.EventView'
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: get Event
+      tags:
+      - event
+    put:
+      consumes:
+      - application/json
+      description: update Event
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event
+        in: body
+        name: event
+        schema:
+          $ref: '#/definitions/event.EventInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: update Event
+      tags:
+      - event
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: login User
+      parameters:
+      - description: Login
+        in: body
+        name: event
+        schema:
+          $ref: '#/definitions/user.UserLoginInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: login User
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: register User
+      parameters:
+      - description: User
+        in: body
+        name: event
+        schema:
+          $ref: '#/definitions/user.UserRegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+      summary: register User
+      tags:
+      - auth
+swagger: "2.0"
