@@ -34,7 +34,7 @@ func InitDB() (*gorm.DB, error) {
 			log.Println("Successfully connected to the database!")
 		}
 
-		err = db.SetupJoinTable(&event.Event{}, "Users", &participant.Participant{})
+		//err = db.SetupJoinTable(&event.Event{}, "Users", &participant.Participant{})
 		db.AutoMigrate(&user.User{}, &event.Event{}, &category.Category{}, &participant.Participant{}, &notification.Notification{})
 
 		if err == nil {
