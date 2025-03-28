@@ -7,10 +7,28 @@ import (
 )
 
 type Participant struct {
-	UserID      uuid.UUID `gorm:"primaryKey;type:uuid"`
-	EventID     uuid.UUID `gorm:"primaryKey;type:uuid"`
+	ID          uuid.UUID `gorm:"primaryKey;type:uuid"`
+	UserID      uuid.UUID `gorm:"type:uuid"`
+	//User        user.User   `gorm:"foreignKey:UserID"`
+	EventID     uuid.UUID `gorm:"type:uuid"`
+	//Event       event.Event `gorm:"foreignKey:EventID"`
 	Status      string    `sql:"type:ENUM('Yes', 'No', 'Maybe')"`
-	HasAccess   bool
 	Ticket      string
 	DateCreated time.Time `gorm:"autoCreateTime"`
+}
+
+// @description participant input
+type ParticipantInput struct {
+	EventID     *uuid.UUID `json:"eventId" example:"09149ADB-CA29-401E-B9E9-06578A0A716C"`
+	Status      *string    `json:"status" example:"Yes"`
+}
+
+// @description participant view
+type ParticipantView struct {
+	ID          uuid.UUID `json:"id"`
+	UserID      uuid.UUID `json:"userId"`
+	EventID     uuid.UUID `json:"eventId"`
+	Status      string    `json:"status"`
+	Ticket      string    `json:"ticket"`
+	DateCreated time.Time `json:"createdAt"`
 }

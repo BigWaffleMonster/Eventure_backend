@@ -21,6 +21,18 @@ func NewAuthController(service auth.AuthService) AuthController {
 	return &authController{Service: service}
 }
 
+// @summary Зарегестрирвоаться
+// @schemes
+// @description Зарегестрирвоаться
+// @tags auth
+// @accept json
+// @produce json
+// @param register body auth.RegisterInput false "Данные о пользоавтеле для регистрации"
+// @success 201 {string} string "created"
+// @failure 400 {string} string "error"
+// @failure 409 {string} string "error"
+// @failure 500 {string} string "error"
+// @router /register [post]
 func (c *authController) Register(ctx *gin.Context) {
 	var body auth.RegisterInput
 
@@ -38,6 +50,18 @@ func (c *authController) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": resp})
 }
 
+// @summary Войти в систему
+// @schemes
+// @description Войти в систему
+// @tags auth
+// @accept json
+// @produce json
+// @param register body auth.LoginInput false "Данные логина"
+// @success 200 {string} string "created"
+// @failure 400 {string} string "error"
+// @failure 409 {string} string "error"
+// @failure 500 {string} string "error"
+// @router /login [post]
 func (c *authController) Login(ctx *gin.Context) {
 	var body auth.LoginInput
 
@@ -52,9 +76,21 @@ func (c *authController) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"data": tokens})
+	ctx.JSON(http.StatusOK, gin.H{"data": tokens})
 }
 
+// @summary Обновить токен
+// @schemes
+// @description Обновить токен
+// @tags auth
+// @accept json
+// @produce json
+// @param register body auth.RefreshInput false "Обновить токен"
+// @success 200 {string} string "created"
+// @failure 400 {string} string "error"
+// @failure 409 {string} string "error"
+// @failure 500 {string} string "error"
+// @router /refresh [post]
 func (c *authController) RefreshToken(ctx *gin.Context) {
 	var refreshInput auth.RefreshInput
 

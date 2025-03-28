@@ -1,0 +1,670 @@
+basePath: /api/v1
+definitions:
+  github_com_BigWaffleMonster_Eventure_backend_internal_event.EventInput:
+    description: Событие
+    properties:
+      category:
+        description: Категория
+        format: uuid
+        type: string
+      description:
+        description: Описание
+        example: My best birth day
+        type: string
+      endAt:
+        description: Дата конца
+        format: date-time
+        type: string
+      location:
+        description: Локация
+        example: My best home
+        type: string
+      maxQtyParticipants:
+        description: Максимальное кол-во участников
+        example: 30
+        type: integer
+      private:
+        default: false
+        description: Приватность
+        type: boolean
+      startAt:
+        description: Дата начала
+        format: date-time
+        type: string
+      title:
+        description: Название
+        example: My best birth day
+        type: string
+    type: object
+  github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView:
+    description: event view model
+    properties:
+      categoryID:
+        type: string
+      dateCreated:
+        type: string
+      dateUpdated:
+        type: string
+      description:
+        type: string
+      endDate:
+        type: string
+      id:
+        type: string
+      location:
+        type: string
+      maxQtyParticipants:
+        type: integer
+      ownerId:
+        type: string
+      private:
+        type: boolean
+      startDate:
+        type: string
+      title:
+        type: string
+    type: object
+  github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantInput:
+    description: participant input
+    properties:
+      eventId:
+        example: 09149ADB-CA29-401E-B9E9-06578A0A716C
+        type: string
+      status:
+        example: "Yes"
+        type: string
+    type: object
+  github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView:
+    description: participant view
+    properties:
+      createdAt:
+        type: string
+      eventId:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+      ticket:
+        type: string
+      userId:
+        type: string
+    type: object
+  github_com_BigWaffleMonster_Eventure_backend_internal_user.UserUpdateInput:
+    properties:
+      email:
+        type: string
+      isEmailConfirmed:
+        type: boolean
+      password:
+        type: string
+      userName:
+        type: string
+    type: object
+  github_com_BigWaffleMonster_Eventure_backend_internal_user.UserView:
+    properties:
+      dateCreated:
+        type: string
+      dateUpdated:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      isEmailConfirmed:
+        type: boolean
+      userName:
+        type: string
+    type: object
+  github_com_BigWaffleMonster_Eventure_backend_pkg_auth.LoginInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_BigWaffleMonster_Eventure_backend_pkg_auth.RefreshInput:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  github_com_BigWaffleMonster_Eventure_backend_pkg_auth.RegisterInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: rachkov.work@gmail.com, Sergei.m.khanlarov@gmail.com, me@justwalsdi.ru
+    name: Daniil, Sergei, Alex
+  description: Simple app to plan your celebration.
+  title: Eventura app
+  version: "1.0"
+paths:
+  /event:
+    get:
+      consumes:
+      - application/json
+      description: Получение событий
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView'
+            type: array
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Получение событий
+      tags:
+      - event
+    post:
+      consumes:
+      - application/json
+      description: Создание события
+      parameters:
+      - description: Событие
+        in: body
+        name: event
+        schema:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Создание события
+      tags:
+      - event
+  /event/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление события
+      parameters:
+      - description: Идентификатор события
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Удаление события
+      tags:
+      - event
+    get:
+      consumes:
+      - application/json
+      description: Получение события
+      parameters:
+      - description: Идентификатор события
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView'
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Получение события
+      tags:
+      - event
+    put:
+      consumes:
+      - application/json
+      description: Обновление события
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Событие
+        in: body
+        name: event
+        schema:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Обновление события
+      tags:
+      - event
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Войти в систему
+      parameters:
+      - description: Данные логина
+        in: body
+        name: register
+        schema:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_pkg_auth.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Войти в систему
+      tags:
+      - auth
+  /participant:
+    get:
+      consumes:
+      - application/json
+      description: Получение участников события
+      parameters:
+      - description: Идентификатор события
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView'
+            type: array
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Получение участников события
+      tags:
+      - participant
+    post:
+      consumes:
+      - application/json
+      description: Создание участника
+      parameters:
+      - description: Участник
+        in: body
+        name: participant
+        schema:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Создание участника
+      tags:
+      - participant
+  /participant/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление участника
+      parameters:
+      - description: Идентификатор участника
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Удаление участника
+      tags:
+      - participant
+    get:
+      consumes:
+      - application/json
+      description: Получение участника
+      parameters:
+      - description: Идентификатор участника
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView'
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Получение участника
+      tags:
+      - participant
+    put:
+      consumes:
+      - application/json
+      description: Обновить участника
+      parameters:
+      - description: Идентификатор участника
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Участник
+        in: body
+        name: participant
+        schema:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Обновить участника
+      tags:
+      - participant
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Обновить токен
+      parameters:
+      - description: Обновить токен
+        in: body
+        name: register
+        schema:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_pkg_auth.RefreshInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Обновить токен
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Зарегестрирвоаться
+      parameters:
+      - description: Данные о пользоавтеле для регистрации
+        in: body
+        name: register
+        schema:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_pkg_auth.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Зарегестрирвоаться
+      tags:
+      - auth
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление пользователя
+      parameters:
+      - description: Идентиикатор пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Удаление пользователя
+      tags:
+      - user
+    get:
+      consumes:
+      - application/json
+      description: Получение пользователя
+      parameters:
+      - description: Идентиикатор пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_user.UserView'
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Получение пользователя
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: Обновление пользователя
+      parameters:
+      - description: Идентиикатор пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные о пользователе
+        in: body
+        name: event
+        schema:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_user.UserUpdateInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Обновление пользователя
+      tags:
+      - user
+securityDefinitions:
+  ApiKeyAuth:
+    description: Description for what is this security definition being used
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
