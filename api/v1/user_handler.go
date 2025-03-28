@@ -7,7 +7,6 @@ import (
 	_ "github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/gin-gonic/gin"
 )
-
 type AuthController struct {
 	Service *user.AuthService
 }
@@ -16,6 +15,16 @@ func NewAuthController(service *user.AuthService) *AuthController {
 	return &AuthController{Service: service}
 }
 
+// @summary register User
+// @schemes
+// @description register User
+// @tags auth
+// @accept json
+// @produce json
+// @param event body user.UserRegisterInput false "User"
+// @success 201 {string} Successfully created!
+// @failure 400 {string} string "error"
+// @Router /register [post]
 func (c *AuthController) Register(ctx *gin.Context) {
 	var body user.UserRegisterInput
 
@@ -33,6 +42,16 @@ func (c *AuthController) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": resp})
 }
 
+// @summary login User
+// @schemes
+// @description login User
+// @tags auth
+// @accept json
+// @produce json
+// @param event body user.UserLoginInput false "Login"
+// @success 201 {string} Successfully created!
+// @failure 400 {string} string "error"
+// @Router /login [post]
 func (c *AuthController) Login(ctx *gin.Context) {
 	var body user.UserLoginInput
 

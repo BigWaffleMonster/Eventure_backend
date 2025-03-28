@@ -3,7 +3,6 @@ package user
 import (
 	"time"
 
-	"github.com/BigWaffleMonster/Eventure_backend/internal/notification"
 	"github.com/google/uuid"
 )
 
@@ -17,7 +16,7 @@ type User struct {
 	IsEmailConfirmed bool      `gorm:"default:false"`
 
 	// Events        []event.Event `gorm:"many2many:participants;"`
-	Notifications []notification.Notification
+	//Notifications []notification.Notification
 
 	// Event Event `gorm:"foreignKey:OwnerID"`
 }
