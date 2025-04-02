@@ -11,7 +11,7 @@ import (
 type Event struct {
 	ID                   uuid.UUID `gorm:"primaryKey;type:uuid"`
 	OwnerID              uuid.UUID `grom:"type:uuid"`
-	Title                string    `gorm:"unique; not null"`
+	Title                string    `gorm:"not null"`
 	Description          string    `gorm:"not null"`
 	NumberOfParticipants int
 	Location             string

@@ -16,18 +16,23 @@ type User struct {
 	DateUpdated      time.Time `gorm:"autoUpdateTime"`
 	IsEmailConfirmed bool      `gorm:"default:false"`
 
-	// Events        []event.Event `gorm:"many2many:participants;"`
 	Notifications []notification.Notification
-
-	// Event Event `gorm:"foreignKey:OwnerID"`
 }
 
-type UserRegisterInput struct {
-	Email    string  `json:"email"`
-	Password *string `json:"password"`
+type UserGetView struct {
+	ID               uuid.UUID `json:"id"`
+	UserName         string    `json:"userName"`
+	Email            string    `json:"email"`
+	DateCreated      time.Time `json:"dateCreated"`
+	DateUpdated      time.Time `json:"dateUpdated"`
+	IsEmailConfirmed bool      `json:"isEmailConfirmed"`
 }
 
-type UserLoginInput struct {
-	Email    string  `json:"email"`
-	Password *string `json:"password"`
+type UserUpdateInput struct {
+	UserName         *string `json:"userName"`
+	Email            *string `json:"email"`
+	IsEmailConfirmed *bool   `json:"isEmailConfirmed"`
+	Password         *string `json:"password"`
 }
+
+type UserUpdateView struct{}

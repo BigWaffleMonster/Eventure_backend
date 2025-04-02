@@ -10,3 +10,17 @@ type Claims struct {
 	ID    uuid.UUID
 	jwt.RegisteredClaims
 }
+
+type RegisterInput struct {
+	Email    string  `json:"email"`
+	Password *string `json:"password"`
+}
+
+type LoginInput struct {
+	Email    string  `json:"email"`
+	Password *string `json:"password"`
+}
+
+type RefreshInput struct {
+	RefreshToken string `json:"refresh_token"`
+}
