@@ -10,15 +10,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type AuthService struct {
-	Repo *user.UserRepository
+type AuthService interface {
+	Register(data RegisterInput) (string, error)
+	Login(data LoginInput) (map[string]string, error)
+	RefreshToken(data RefreshInput) (map[string]string, error)
 }
 
-func NewAuthService(repo *user.UserRepository) *AuthService {
-	return &AuthService{Repo: repo}
+type authService struct {
+	Repo user.UserRepository
 }
 
-func (s *AuthService) Register(data RegisterInput) (string, error) {
+func NewAuthService(repo user.UserRepository) AuthService {
+	return &authService{Repo: repo}
+}
+
+func (s *authService) Register(data RegisterInput) (string, error) {
 	var userModel user.User
 
 	if !helpers.IsValidEmail(data.Email) {
@@ -52,7 +58,7 @@ func (s *AuthService) Register(data RegisterInput) (string, error) {
 	return "Successfully created!", nil
 }
 
-func (s *AuthService) Login(data LoginInput) (map[string]string, error) {
+func (s *authService) Login(data LoginInput) (map[string]string, error) {
 	if !helpers.IsValidEmail(data.Email) {
 		return nil, errors.New("email not valid")
 	}
@@ -84,7 +90,7 @@ func (s *AuthService) Login(data LoginInput) (map[string]string, error) {
 	return map[string]string{"accessToken": accessToken, "refreshToken": refreshToken}, nil
 }
 
-func (s *AuthService) RefreshToken(data RefreshInput) (map[string]string, error) {
+func (s *authService) RefreshToken(data RefreshInput) (map[string]string, error) {
 	claims, err := ValidateRefreshToken(data.RefreshToken)
 	if err != nil {
 		return nil, errors.New("invalid refresh token")

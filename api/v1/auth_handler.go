@@ -7,15 +7,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AuthController struct {
-	Service *auth.AuthService
+type AuthController interface {
+	Register(ctx *gin.Context)
+	Login(ctx *gin.Context)
+	RefreshToken(ctx *gin.Context)
 }
 
-func NewAuthController(service *auth.AuthService) *AuthController {
-	return &AuthController{Service: service}
+type authController struct {
+	Service auth.AuthService
 }
 
-func (c *AuthController) Register(ctx *gin.Context) {
+func NewAuthController(service auth.AuthService) AuthController {
+	return &authController{Service: service}
+}
+
+func (c *authController) Register(ctx *gin.Context) {
 	var body auth.RegisterInput
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -32,7 +38,7 @@ func (c *AuthController) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": resp})
 }
 
-func (c *AuthController) Login(ctx *gin.Context) {
+func (c *authController) Login(ctx *gin.Context) {
 	var body auth.LoginInput
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -49,7 +55,7 @@ func (c *AuthController) Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": tokens})
 }
 
-func (c *AuthController) RefreshToken(ctx *gin.Context) {
+func (c *authController) RefreshToken(ctx *gin.Context) {
 	var refreshInput auth.RefreshInput
 
 	if err := ctx.ShouldBindJSON(&refreshInput); err != nil {

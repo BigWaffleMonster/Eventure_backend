@@ -1,26 +1,28 @@
 package v1
 
 import (
-	// "net/http"
-
 	"net/http"
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
-	_ "github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	// "github.com/gin-gonic/gin"
 )
 
-type UserController struct {
-	Service *user.UserService
+type UserController interface {
+	GetUserByID(ctx *gin.Context)
+	Update(ctx *gin.Context)
+	Remove(ctx *gin.Context)
 }
 
-func NewUserController(service *user.UserService) *UserController {
-	return &UserController{Service: service}
+type userController struct {
+	Service user.UserService
 }
 
-func (c *UserController) GetUserByID(ctx *gin.Context) {
+func NewUserController(service user.UserService) UserController {
+	return &userController{Service: service}
+}
+
+func (c *userController) GetUserByID(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -36,7 +38,7 @@ func (c *UserController) GetUserByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": data})
 }
 
-func (c *UserController) Update(ctx *gin.Context) {
+func (c *userController) Update(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -58,7 +60,7 @@ func (c *UserController) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
-func (c *UserController) Remove(ctx *gin.Context) {
+func (c *userController) Remove(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

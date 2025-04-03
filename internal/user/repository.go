@@ -5,15 +5,23 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepository struct {
+type UserRepository interface {
+	FindByEmail(email string) (*User, error)
+	Create(user *User) error
+	GetByID(id uuid.UUID) (*User, error)
+	Update(data *User) error
+	Remove(id uuid.UUID) error
+}
+
+type userRepository struct {
 	DB *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
-	return &UserRepository{DB: db}
+func NewUserRepository(db *gorm.DB) UserRepository {
+	return &userRepository{DB: db}
 }
 
-func (r *UserRepository) FindByEmail(email string) (*User, error) {
+func (r *userRepository) FindByEmail(email string) (*User, error) {
 	var user User
 	result := r.DB.Where("email = ?", email).First(&user)
 	if result.Error != nil {
@@ -22,11 +30,11 @@ func (r *UserRepository) FindByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) Create(user *User) error {
+func (r *userRepository) Create(user *User) error {
 	return r.DB.Create(user).Error
 }
 
-func (r *UserRepository) GetByID(id uuid.UUID) (*User, error) {
+func (r *userRepository) GetByID(id uuid.UUID) (*User, error) {
 	var user User
 	result := r.DB.Where("id = ?", id).First(&user)
 	if result.Error != nil {
@@ -35,10 +43,10 @@ func (r *UserRepository) GetByID(id uuid.UUID) (*User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) Update(data *User) error {
+func (r *userRepository) Update(data *User) error {
 	return r.DB.Save(data).Error
 }
 
-func (r *UserRepository) Remove(id uuid.UUID) error {
+func (r *userRepository) Remove(id uuid.UUID) error {
 	return r.DB.Delete(&User{}, id).Error
 }

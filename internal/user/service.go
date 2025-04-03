@@ -8,15 +8,21 @@ import (
 	"github.com/jinzhu/copier"
 )
 
-type UserService struct {
-	Repo *UserRepository
+type UserService interface {
+	GetByID(id uuid.UUID) (*UserGetView, error)
+	Update(id uuid.UUID, data *UserUpdateInput) error
+	Remove(id uuid.UUID) error
 }
 
-func NewUserService(repo *UserRepository) *UserService {
-	return &UserService{Repo: repo}
+type userService struct {
+	Repo UserRepository
 }
 
-func (s *UserService) GetByID(id uuid.UUID) (*UserGetView, error) {
+func NewUserService(repo UserRepository) UserService {
+	return &userService{Repo: repo}
+}
+
+func (s *userService) GetByID(id uuid.UUID) (*UserGetView, error) {
 	var userView UserGetView
 
 	data, err := s.Repo.GetByID(id)
@@ -29,7 +35,7 @@ func (s *UserService) GetByID(id uuid.UUID) (*UserGetView, error) {
 	return &userView, nil
 }
 
-func (s *UserService) Update(id uuid.UUID, data *UserUpdateInput) error {
+func (s *userService) Update(id uuid.UUID, data *UserUpdateInput) error {
 	user, err := s.Repo.GetByID(id)
 	if err != nil {
 		return err
@@ -62,7 +68,7 @@ func (s *UserService) Update(id uuid.UUID, data *UserUpdateInput) error {
 	return nil
 }
 
-func (s *UserService) Remove(id uuid.UUID) error {
+func (s *userService) Remove(id uuid.UUID) error {
 	err := s.Repo.Remove(id)
 	if err != nil {
 		return err
