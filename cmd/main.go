@@ -29,7 +29,10 @@ func main() {
 
 	// Инициализация слоев
 	userRepo := user.NewUserRepository(db)
-	authService := user.NewAuthService(userRepo)
+	userService := user.NewUserService(userRepo)
+	userController := v1.NewUserController(userService)
+
+	authService := auth.NewAuthService(userRepo)
 	authController := v1.NewAuthController(authService)
 
 	// Настройка маршрутизатора
@@ -47,6 +50,9 @@ func main() {
 
 	protected := router.Group("/api/v1")
 	protected.Use(auth.AuthMiddleware())
+	{
+		protected.GET("/user/:id", userController.GetUserByID)
+	}
 
 	// Запуск сервера
 	log.Println("Server is running on port 8080...")

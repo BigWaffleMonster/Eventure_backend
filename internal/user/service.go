@@ -2,84 +2,77 @@ package user
 
 import (
 	"errors"
-	"log"
-	"time"
 
-	"github.com/BigWaffleMonster/Eventure_backend/internal/user/helpers"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
+	"github.com/BigWaffleMonster/Eventure_backend/helpers"
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 )
 
-type AuthService struct {
-	Repo *UserRepository
+type UserService interface {
+	GetByID(id uuid.UUID) (*UserView, error)
+	Update(id uuid.UUID, data *UserUpdateInput) error
+	Remove(id uuid.UUID) error
 }
 
-func NewAuthService(repo *UserRepository) *AuthService {
-	return &AuthService{Repo: repo}
+type userService struct {
+	Repo UserRepository
 }
 
-func (s *AuthService) Register(data UserRegisterInput) (string, error) {
-	var userModel User
+func NewUserService(repo UserRepository) UserService {
+	return &userService{Repo: repo}
+}
 
-	if !helpers.IsValidEmail(data.Email) {
-		return "", errors.New("email not valid")
+func (s *userService) GetByID(id uuid.UUID) (*UserView, error) {
+	var userView UserView
+
+	data, err := s.Repo.GetByID(id)
+	if err != nil {
+		return nil, err
 	}
 
-	existingUser, _ := s.Repo.FindByEmail(data.Email)
-	if existingUser != nil {
-		return "", errors.New("email already exists")
+	copier.Copy(&userView, &data)
+
+	return &userView, nil
+}
+
+func (s *userService) Update(id uuid.UUID, data *UserUpdateInput) error {
+	user, err := s.Repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	if data.Email != nil {
+		user.Email = *data.Email
+	}
+	if data.UserName != nil {
+		user.UserName = *data.UserName
+	}
+	if data.IsEmailConfirmed != nil {
+		user.IsEmailConfirmed = *data.IsEmailConfirmed
 	}
 
 	if data.Password != nil {
-		hashedPassword, err := helpers.HashPassword(*data.Password)
+		password, err := helpers.HashPassword(*data.Password)
 		if err != nil {
-			log.Fatal(err)
-			return "", errors.New("Error with hashing password")
+			return errors.New("error with saving password")
 		}
 
-		userModel.Password = hashedPassword
+		user.Password = password
 	}
 
-	userModel.ID = uuid.New()
-	userModel.Email = data.Email
-	userModel.DateCreated = time.Now()
-
-	err := s.Repo.Create(&userModel)
+	err = s.Repo.Update(user)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return "Successfully created!", nil
+	return nil
 }
 
-func (s *AuthService) Login(data UserLoginInput) (string, error) {
-	if !helpers.IsValidEmail(data.Email) {
-		return "", errors.New("email not valid")
-	}
-
-	existingUser, _ := s.Repo.FindByEmail(data.Email)
-	if existingUser == nil {
-		return "", errors.New("user doesn`t exists")
-	}
-
-	if data.Password != nil {
-		passwordHashCheckResult := helpers.CheckPasswordHash(existingUser.Password, *data.Password)
-		if !passwordHashCheckResult {
-			return "", errors.New("password don`t match")
-		}
-	} else {
-		//checkTempPassword
-	}
-	//create jwt and send to user
-	token, err := auth.GenerateAccessToken(existingUser.Email, existingUser.ID)
+func (s *userService) Remove(id uuid.UUID) error {
+	err := s.Repo.Remove(id)
 	if err != nil {
-		return "", errors.New("error Generating Token")
+		return err
 	}
-	//!TODO add refresh token
 
-	return token, nil
-}
-
-func (s *AuthService) RefreshToken() {
-
+	return nil
 }

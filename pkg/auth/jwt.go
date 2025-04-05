@@ -55,7 +55,7 @@ func GenerateAccessToken(email string, ID uuid.UUID) (string, error) {
 }
 
 func GenerateRefreshToken(email string, ID uuid.UUID) (string, error) {
-	expirationTime := time.Now().Add(7 * 24 * time.Hour) // Token expires in 5 minutes
+	expirationTime := time.Now().Add(7 * 24 * time.Hour) // Token expires in 7 days
 	claims := &Claims{
 		Email: email,
 		ID:    ID,
