@@ -31,7 +31,7 @@ func (s *authService) Register(data RegisterInput) (string, error) {
 		return "", errors.New("email not valid")
 	}
 
-	existingUser, _ := s.Repo.FindByEmail(data.Email)
+	existingUser, _ := s.Repo.GetByEmail(data.Email)
 	if existingUser != nil {
 		return "", errors.New("email already exists")
 	}
@@ -63,7 +63,7 @@ func (s *authService) Login(data LoginInput) (map[string]string, error) {
 		return nil, errors.New("email not valid")
 	}
 
-	existingUser, _ := s.Repo.FindByEmail(data.Email)
+	existingUser, _ := s.Repo.GetByEmail(data.Email)
 	if existingUser == nil {
 		return nil, errors.New("user doesn`t exists")
 	}

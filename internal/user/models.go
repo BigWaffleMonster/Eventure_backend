@@ -19,7 +19,7 @@ type User struct {
 	Notifications []notification.Notification
 }
 
-type UserGetView struct {
+type UserView struct {
 	ID               uuid.UUID `json:"id"`
 	UserName         string    `json:"userName"`
 	Email            string    `json:"email"`
@@ -34,5 +34,3 @@ type UserUpdateInput struct {
 	IsEmailConfirmed *bool   `json:"isEmailConfirmed"`
 	Password         *string `json:"password"`
 }
-
-type UserUpdateView struct{}

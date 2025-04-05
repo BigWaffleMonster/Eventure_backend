@@ -9,7 +9,7 @@ import (
 )
 
 type UserService interface {
-	GetByID(id uuid.UUID) (*UserGetView, error)
+	GetByID(id uuid.UUID) (*UserView, error)
 	Update(id uuid.UUID, data *UserUpdateInput) error
 	Remove(id uuid.UUID) error
 }
@@ -22,8 +22,8 @@ func NewUserService(repo UserRepository) UserService {
 	return &userService{Repo: repo}
 }
 
-func (s *userService) GetByID(id uuid.UUID) (*UserGetView, error) {
-	var userView UserGetView
+func (s *userService) GetByID(id uuid.UUID) (*UserView, error) {
+	var userView UserView
 
 	data, err := s.Repo.GetByID(id)
 	if err != nil {

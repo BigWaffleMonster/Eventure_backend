@@ -6,7 +6,7 @@ import (
 )
 
 type UserRepository interface {
-	FindByEmail(email string) (*User, error)
+	GetByEmail(email string) (*User, error)
 	Create(user *User) error
 	GetByID(id uuid.UUID) (*User, error)
 	Update(data *User) error
@@ -21,7 +21,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{DB: db}
 }
 
-func (r *userRepository) FindByEmail(email string) (*User, error) {
+func (r *userRepository) GetByEmail(email string) (*User, error) {
 	var user User
 	result := r.DB.Where("email = ?", email).First(&user)
 	if result.Error != nil {
