@@ -3,7 +3,6 @@ package user
 import (
 	"time"
 
-	"github.com/BigWaffleMonster/Eventure_backend/internal/notification"
 	"github.com/google/uuid"
 )
 
@@ -15,8 +14,6 @@ type User struct {
 	DateCreated      time.Time
 	DateUpdated      time.Time `gorm:"autoUpdateTime"`
 	IsEmailConfirmed bool      `gorm:"default:false"`
-
-	Notifications []notification.Notification
 }
 
 type UserView struct {
