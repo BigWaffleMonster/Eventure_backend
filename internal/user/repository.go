@@ -11,6 +11,8 @@ type UserRepository interface {
 	GetByID(id uuid.UUID) (*User, error)
 	Update(data *User) error
 	Remove(id uuid.UUID) error
+	GetRefreshToken(refreshToken string) error
+	SetRefreshToken(userID uuid.UUID, token string) error
 }
 
 type userRepository struct {
@@ -49,4 +51,29 @@ func (r *userRepository) Update(data *User) error {
 
 func (r *userRepository) Remove(id uuid.UUID) error {
 	return r.DB.Delete(&User{}, id).Error
+}
+
+func (r *userRepository) GetRefreshToken(refreshToken string) error {
+	var token UserRefreshToken
+	result := r.DB.Where("token = ?", refreshToken).First(&token)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func (r *userRepository) SetRefreshToken(userID uuid.UUID, token string) error {
+	var data UserRefreshToken
+
+	result := r.DB.Where(UserRefreshToken{UserID: userID}).FirstOrCreate(&data, UserRefreshToken{
+		UserID:        userID,
+		RefsreshToken: token,
+	})
+
+	if result.RowsAffected == 0 {
+		data.RefsreshToken = token
+		return r.DB.Save(&data).Error
+	} else {
+		return result.Error
+	}
 }
