@@ -26,10 +26,10 @@ import (
 //	@host		localhost:8080
 //	@BasePath	/api/v1
 
-//	@securityDefinitions.apikey	ApiKeyAuth
-//	@in							header
-//	@name						Authorization
-//	@description				Description for what is this security definition being used
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @description				Description for what is this security definition being used
 func main() {
 	//TODO: Сепарировать данный метод
 	err := godotenv.Load("../.env")
@@ -71,19 +71,8 @@ func main() {
 
 		events := public.Group("/event")
 		{
-			events.POST("", eventController.Create)
-			events.PUT("/:id", eventController.Update)
-			events.DELETE("/:id", eventController.Remove)
 			events.GET("/:id", eventController.GetByID)
 			events.GET("", eventController.GetCollection)
-		}
-		participants := public.Group("/participant")
-		{
-			participants.POST("", participantController.Create)
-			participants.PUT("/:id/state", participantController.ChangeState)
-			participants.DELETE("/:id", participantController.Remove)
-			participants.GET("/:id", participantController.GetByID)
-			participants.GET("", participantController.GetCollection)
 		}
 	}
 
@@ -97,6 +86,21 @@ func main() {
 				user.PUT("/:id", userController.Update)
 				user.DELETE("/:id", userController.Remove)
 			}
+			events := public.Group("/event")
+			{
+				events.POST("", eventController.Create)
+				events.PUT("/:id", eventController.Update)
+				events.DELETE("/:id", eventController.Remove)
+			}
+			participants := public.Group("/participant")
+			{
+				participants.POST("", participantController.Create)
+				participants.PUT("/:id/state", participantController.ChangeState)
+				participants.DELETE("/:id", participantController.Remove)
+				participants.GET("/:id", participantController.GetByID)
+				participants.GET("", participantController.GetCollection)
+			}
+
 		}
 	}
 
