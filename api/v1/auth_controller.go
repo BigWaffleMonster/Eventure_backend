@@ -70,13 +70,13 @@ func (c *authController) Login(ctx *gin.Context) {
 		return
 	}
 
-	token, err := c.Service.Login(body)
+	tokens, err := c.Service.Login(body)
 	if err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": token})
+	ctx.JSON(http.StatusOK, gin.H{"data": tokens})
 }
 
 // @summary Обновить токен
@@ -99,11 +99,11 @@ func (c *authController) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	token, err := c.Service.RefreshToken(refreshInput)
+	tokens, err := c.Service.RefreshToken(refreshInput)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": token})
+	ctx.JSON(http.StatusOK, gin.H{"data": tokens})
 }
