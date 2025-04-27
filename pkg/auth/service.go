@@ -87,13 +87,26 @@ func (s *authService) Login(data LoginInput) (map[string]string, error) {
 		return nil, errors.New("error Generating Token")
 	}
 
-	return map[string]string{"accessToken": accessToken, "refreshToken": refreshToken}, nil
+	err = s.Repo.SetRefreshToken(existingUser.ID, refreshToken)
+	if err != nil {
+		return nil, errors.New("can`t set refresh token")
+	}
+
+	return map[string]string{
+		"accessToken":  accessToken,
+		"refreshToken": refreshToken,
+	}, nil
 }
 
 func (s *authService) RefreshToken(data RefreshInput) (map[string]string, error) {
 	claims, err := ValidateRefreshToken(data.RefreshToken)
 	if err != nil {
 		return nil, errors.New("invalid refresh token")
+	}
+
+	err = s.Repo.GetRefreshToken(data.RefreshToken)
+	if err != nil {
+		return nil, errors.New("refresh token doesn`t exists")
 	}
 
 	// Generate a new access token

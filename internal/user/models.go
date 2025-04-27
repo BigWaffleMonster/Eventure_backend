@@ -16,6 +16,11 @@ type User struct {
 	IsEmailConfirmed bool      `gorm:"default:false"`
 }
 
+type UserRefreshToken struct {
+	UserID        uuid.UUID `gorm:"type:uuid"`
+	RefsreshToken string    `grom:"not null"`
+}
+
 type UserView struct {
 	ID               uuid.UUID `json:"id"`
 	UserName         string    `json:"userName"`

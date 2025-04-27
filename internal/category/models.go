@@ -1,10 +1,11 @@
 package category
 
-import (
-	"github.com/google/uuid"
-)
-
 type Category struct {
-	ID    uuid.UUID `gorm:"primaryKey"`
+	ID    uint `gorm:"unique;primaryKey;autoIncrement"`
 	Title string
+}
+
+type CategoryView struct {
+	ID    uint   `json:"id"`
+	Title string `json:"title"`
 }
