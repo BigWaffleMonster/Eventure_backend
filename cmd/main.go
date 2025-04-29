@@ -14,6 +14,8 @@ import (
 	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
+	"github.com/BigWaffleMonster/Eventure_backend/api/middlewares"
 )
 
 //	@title			Eventura app
@@ -64,6 +66,7 @@ func main() {
 	api.SwaggerInfo()
 
 	public := router.Group("/api/v1")
+	public.Use(middlewares.HandleCors())
 	{
 		public.POST("/register", authController.Register)
 		public.POST("/login", authController.Login)
@@ -77,8 +80,8 @@ func main() {
 	}
 
 	protected := router.Group("/api/v1")
+	protected.Use(middlewares.HandleCors(), middlewares.AuthMiddleware())
 	{
-		protected.Use(auth.AuthMiddleware())
 		{
 			user := public.Group("/user")
 			{
