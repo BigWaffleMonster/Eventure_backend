@@ -1,4 +1,4 @@
-package auth
+package middlewares
 
 import (
 	"net/http"
@@ -7,6 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -25,9 +27,9 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claims := &Claims{}
+		claims := &auth.Claims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return os.Getenv("JWT_SECRETE"), nil
+			return os.Getenv("JWT_SECRET"), nil
 		})
 
 		if err != nil || !token.Valid {

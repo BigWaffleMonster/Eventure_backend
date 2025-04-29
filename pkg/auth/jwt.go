@@ -10,8 +10,8 @@ import (
 )
 
 // ValidateAccessToken validates the access token
-var accessKey string = os.Getenv("JWT_ACCESS_SECRETE")
-var refreshKey string = os.Getenv("JWT_REFRESH_SECRETE")
+var accessKey string = os.Getenv("JWT_ACCESS_SECRET")
+var refreshKey string = os.Getenv("JWT_REFRESH_SECRET")
 
 func ValidateAccessToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
