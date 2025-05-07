@@ -3,17 +3,19 @@ package event
 import (
 	"errors"
 
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/helpers"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 )
 
 type EventService interface{
-    Create(data *EventInput) error
+    Create(data *EventInput, currentUser *auth.CurrentUser) error
 	Update(id uuid.UUID, data *EventInput) error
 	Remove(id uuid.UUID) error
 	GetByID(id uuid.UUID) (*EventView, error)
 	GetCollection() (*[]EventView, error)
+	GetOwnedCollection(currentUser *auth.CurrentUser) (*[]EventView, error)
 }
 
 type eventService struct {
@@ -24,7 +26,7 @@ func NewEventService(repository EventRepository) EventService {
 	return &eventService{Repository: repository}
 }
 
-func (s *eventService) Create(data *EventInput) (error) {
+func (s *eventService) Create(data *EventInput, currentUser *auth.CurrentUser) (error) {
 
 	if data.EndDate.Before(*data.StartDate) {
 		return errors.New("date errors")
@@ -32,7 +34,7 @@ func (s *eventService) Create(data *EventInput) (error) {
 
 	event := Event{
 		ID: uuid.New(),
-		OwnerID: uuid.New(),//TODO: add un middleware and get user from it
+		OwnerID: currentUser.ID,
 		Title: *data.Title,
 		Description: *data.Description,
 		Location: *data.Location,
@@ -107,6 +109,24 @@ func (s *eventService) GetCollection() (*[]EventView, error) {
 	var events *[]Event
 
 	events, err := s.Repository.GetCollection()
+	if err != nil {
+		return nil, err
+	}
+
+	views := helpers.MapArray(events, func(event Event) EventView {
+		var eventView EventView
+		copier.Copy(&eventView, &event)
+		return eventView
+	})
+
+
+	return views, nil
+}
+
+func (s *eventService) GetOwnedCollection(currentUser *auth.CurrentUser) (*[]EventView, error) {
+	var events *[]Event
+
+	events, err := s.Repository.GetOwnedCollection(currentUser.ID)
 	if err != nil {
 		return nil, err
 	}

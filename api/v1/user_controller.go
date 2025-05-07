@@ -8,21 +8,16 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserController interface {
-	GetUserByID(ctx *gin.Context)
-	Update(ctx *gin.Context)
-	Remove(ctx *gin.Context)
-}
-
-type userController struct {
+type UserController struct {
 	Service user.UserService
 }
 
-func NewUserController(service user.UserService) UserController {
-	return &userController{Service: service}
+func NewUserController(service user.UserService) *UserController {
+	return &UserController{Service: service}
 }
 
 //TODO: а зачем тут айди? получаем айжи не с фронта, а изнутри контекста запроса
+// @Security ApiKeyAuth
 // @summary Получение пользователя
 // @schemes
 // @description Получение пользователя
@@ -35,22 +30,23 @@ func NewUserController(service user.UserService) UserController {
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /user/{id} [get]
-func (c *userController) GetUserByID(ctx *gin.Context) {
+func (c *UserController) GetByID(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	data, err := c.Service.GetByID(id)
+	userView, err := c.Service.GetByID(id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": data})
+	ctx.JSON(http.StatusOK, userView)
 }
 
+// @Security ApiKeyAuth
 // @summary Обновление пользователя
 // @schemes
 // @description Обновление пользователя
@@ -64,7 +60,7 @@ func (c *userController) GetUserByID(ctx *gin.Context) {
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /user/{id} [put]
-func (c *userController) Update(ctx *gin.Context) {
+func (c *UserController) Update(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -86,6 +82,7 @@ func (c *userController) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, gin.H{})
 }
 
+// @Security ApiKeyAuth
 // @summary Удаление пользователя
 // @schemes
 // @description Удаление пользователя
@@ -98,7 +95,7 @@ func (c *userController) Update(ctx *gin.Context) {
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /user/{id} [delete]
-func (c *userController) Remove(ctx *gin.Context) {
+func (c *UserController) Remove(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
