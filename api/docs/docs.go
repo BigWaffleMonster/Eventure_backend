@@ -18,8 +18,107 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/category": {
+            "get": {
+                "description": "Получение категорий",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Получение категорий",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/category/{id}": {
+            "get": {
+                "description": "Получение категории",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Получение категории",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Идентификатор категории",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView"
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/event": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Получение событий",
                 "consumes": [
                     "application/json"
@@ -62,6 +161,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание события",
                 "consumes": [
                     "application/json"
@@ -108,8 +212,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/event/private": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получение событий",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Получение событий",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/event/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Получение события",
                 "consumes": [
                     "application/json"
@@ -158,6 +316,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновление события",
                 "consumes": [
                     "application/json"
@@ -211,6 +374,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Удаление события",
                 "consumes": [
                     "application/json"
@@ -309,7 +477,12 @@ const docTemplate = `{
         },
         "/participant": {
             "get": {
-                "description": "Получение участников события",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получение своих записей",
                 "consumes": [
                     "application/json"
                 ],
@@ -319,16 +492,7 @@ const docTemplate = `{
                 "tags": [
                     "participant"
                 ],
-                "summary": "Получение участников события",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Идентификатор события",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "Получение своих записей",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -360,6 +524,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание участника",
                 "consumes": [
                     "application/json"
@@ -406,8 +575,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/participant/event": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получение участников события",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "participant"
+                ],
+                "summary": "Получение участников события",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Идентификатор события",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/participant/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Получение участника",
                 "consumes": [
                     "application/json"
@@ -456,6 +688,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновить участника",
                 "consumes": [
                     "application/json"
@@ -509,6 +746,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Удаление участника",
                 "consumes": [
                     "application/json"
@@ -607,7 +849,7 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
-                "description": "Зарегестрирвоаться",
+                "description": "Регистрация нового пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -617,7 +859,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Зарегестрирвоаться",
+                "summary": "Регистрация нового пользователя",
                 "parameters": [
                     {
                         "description": "Данные о пользоавтеле для регистрации",
@@ -658,6 +900,11 @@ const docTemplate = `{
         },
         "/user/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Получение пользователя",
                 "consumes": [
                     "application/json"
@@ -706,6 +953,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновление пользователя",
                 "consumes": [
                     "application/json"
@@ -759,6 +1011,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Удаление пользователя",
                 "consumes": [
                     "application/json"
@@ -806,6 +1063,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_BigWaffleMonster_Eventure_backend_internal_event.EventInput": {
             "description": "Событие",
             "type": "object",
@@ -1016,7 +1284,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Eventura app",

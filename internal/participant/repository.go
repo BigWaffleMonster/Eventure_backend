@@ -11,6 +11,7 @@ type ParticipantRepository interface{
 	Remove(id uuid.UUID) error
 	GetByID(id uuid.UUID) (*Participant, error)
 	GetCollection(eventID uuid.UUID) (*[]Participant, error)
+	GetOwnedCollection(currentUserID uuid.UUID) (*[]Participant, error)
 }
 
 type participantRepository struct {
@@ -46,7 +47,18 @@ func (r *participantRepository) GetByID(id uuid.UUID) (*Participant, error) {
 func (r *participantRepository) GetCollection(eventID uuid.UUID) (*[]Participant, error){
 	var participants []Participant
 
-	result := r.DB.Where("eventID = ?", eventID).Find(&participants)
+	result := r.DB.Find(&participants, "event_id = ?", eventID)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &participants, nil
+}
+
+func (r *participantRepository) GetOwnedCollection(currentUserID uuid.UUID) (*[]Participant, error){
+	var participants []Participant
+
+	result := r.DB.Find(&participants, "user_id=?", currentUserID)
 
 	if result.Error != nil {
 		return nil, result.Error

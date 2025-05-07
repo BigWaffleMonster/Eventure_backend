@@ -5,7 +5,9 @@ import (
 	"github.com/google/uuid"
 )
 
-type Claims struct {
+var CurrentUserVarName = "current-user"
+
+type CurrentUser struct {
 	Email string
 	ID    uuid.UUID
 	jwt.RegisteredClaims
