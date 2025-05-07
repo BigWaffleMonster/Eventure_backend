@@ -3,8 +3,8 @@ package category
 import "github.com/jinzhu/copier"
 
 type CategoryService interface {
-	GetCategoryList() (*[]CategoryView, error)
-	GetCategoryByID(id uint) (*CategoryView, error)
+	GetCollection() (*[]CategoryView, error)
+	GetByID(id uint) (*CategoryView, error)
 }
 
 type categoryService struct {
@@ -15,10 +15,10 @@ func NewCategoryService(repo CategoryRepository) CategoryService {
 	return &categoryService{Repo: repo}
 }
 
-func (s *categoryService) GetCategoryList() (*[]CategoryView, error) {
+func (s *categoryService) GetCollection() (*[]CategoryView, error) {
 	var categoryView []CategoryView
 
-	data, err := s.Repo.GetCategoryList()
+	data, err := s.Repo.GetCollection()
 	if err != nil {
 		return nil, err
 	}
@@ -28,10 +28,10 @@ func (s *categoryService) GetCategoryList() (*[]CategoryView, error) {
 	return &categoryView, nil
 }
 
-func (s *categoryService) GetCategoryByID(id uint) (*CategoryView, error) {
+func (s *categoryService) GetByID(id uint) (*CategoryView, error) {
 	var categoryView CategoryView
 
-	data, err := s.Repo.GetCategoryByID(id)
+	data, err := s.Repo.GetByID(id)
 	if err != nil {
 		return nil, err
 	}

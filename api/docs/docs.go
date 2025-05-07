@@ -18,6 +18,100 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/category": {
+            "get": {
+                "description": "Получение категорий",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Получение категорий",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/category/{id}": {
+            "get": {
+                "description": "Получение категории",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Получение категории",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Идентификатор категории",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView"
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/event": {
             "get": {
                 "description": "Получение событий",
@@ -607,7 +701,7 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
-                "description": "Зарегестрирвоаться",
+                "description": "Регистрация нового пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -617,7 +711,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Зарегестрирвоаться",
+                "summary": "Регистрация нового пользователя",
                 "parameters": [
                     {
                         "description": "Данные о пользоавтеле для регистрации",
@@ -806,6 +900,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_BigWaffleMonster_Eventure_backend_internal_event.EventInput": {
             "description": "Событие",
             "type": "object",
@@ -1016,7 +1121,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Eventura app",

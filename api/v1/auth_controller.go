@@ -21,9 +21,9 @@ func NewAuthController(service auth.AuthService) AuthController {
 	return &authController{Service: service}
 }
 
-// @summary Зарегестрирвоаться
+// @summary Регистрация нового пользователя
 // @schemes
-// @description Зарегестрирвоаться
+// @description Регистрация нового пользователя
 // @tags auth
 // @accept json
 // @produce json
@@ -47,7 +47,7 @@ func (c *authController) Register(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"data": resp})
+	ctx.JSON(http.StatusCreated, resp)
 }
 
 // @summary Войти в систему
@@ -76,7 +76,7 @@ func (c *authController) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": tokens})
+	ctx.JSON(http.StatusOK, tokens)
 }
 
 // @summary Обновить токен
@@ -105,5 +105,5 @@ func (c *authController) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": tokens})
+	ctx.JSON(http.StatusOK, tokens)
 }

@@ -9,9 +9,102 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
+        "/category": {
+            "get": {
+                "description": "Получение категорий",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Получение категорий",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/category/{id}": {
+            "get": {
+                "description": "Получение категории",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Получение категории",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Идентификатор категории",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView"
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/event": {
             "get": {
                 "description": "Получение событий",
@@ -601,7 +694,7 @@
         },
         "/register": {
             "post": {
-                "description": "Зарегестрирвоаться",
+                "description": "Регистрация нового пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -611,7 +704,7 @@
                 "tags": [
                     "auth"
                 ],
-                "summary": "Зарегестрирвоаться",
+                "summary": "Регистрация нового пользователя",
                 "parameters": [
                     {
                         "description": "Данные о пользоавтеле для регистрации",
@@ -800,6 +893,17 @@
         }
     },
     "definitions": {
+        "github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_BigWaffleMonster_Eventure_backend_internal_event.EventInput": {
             "description": "Событие",
             "type": "object",

@@ -9,7 +9,7 @@ import (
 )
 
 type UserController interface {
-	GetUserByID(ctx *gin.Context)
+	GetByID(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Remove(ctx *gin.Context)
 }
@@ -35,20 +35,20 @@ func NewUserController(service user.UserService) UserController {
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /user/{id} [get]
-func (c *userController) GetUserByID(ctx *gin.Context) {
+func (c *userController) GetByID(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	data, err := c.Service.GetByID(id)
+	userView, err := c.Service.GetByID(id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": data})
+	ctx.JSON(http.StatusOK, userView)
 }
 
 // @summary Обновление пользователя
