@@ -9,20 +9,31 @@ import (
 )
 
 type CategoryController interface {
-	GetCategoryList(ctx *gin.Context)
-	GetCategoryByID(ctx *gin.Context)
+	GetCollection(ctx *gin.Context)
+	GetByID(ctx *gin.Context)
 }
 
 type categoryController struct {
 	Service category.CategoryService
 }
 
+// @summary Получение категорий
+// @schemes
+// @description Получение категорий
+// @tags category
+// @accept json
+// @produce json
+// @success 200 {object} []category.CategoryView
+// @failure 400 {string} string "error"
+// @failure 409 {string} string "error"
+// @failure 500 {string} string "error"
+// @router /category [get]
 func NewCategoryController(service category.CategoryService) CategoryController {
 	return &categoryController{Service: service}
 }
 
-func (c *categoryController) GetCategoryList(ctx *gin.Context) {
-	resp, err := c.Service.GetCategoryList()
+func (c *categoryController) GetCollection(ctx *gin.Context) {
+	resp, err := c.Service.GetCollection()
 	if err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
@@ -31,13 +42,25 @@ func (c *categoryController) GetCategoryList(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": resp})
 }
 
-func (c *categoryController) GetCategoryByID(ctx *gin.Context) {
+// @summary Получение категории
+// @schemes
+// @description Получение категории
+// @tags category
+// @accept json
+// @produce json
+// @param id path string true "Идентификатор категории"
+// @success 200 {object} category.CategoryView
+// @failure 400 {string} string "error"
+// @failure 409 {string} string "error"
+// @failure 500 {string} string "error"
+// @router /category/{id} [get]
+func (c *categoryController) GetByID(ctx *gin.Context) {
 	str_id := ctx.Query("id")
 
 	u64, err := strconv.ParseUint(str_id, 10, 32)
 	id := uint(u64)
 
-	resp, err := c.Service.GetCategoryByID(id)
+	resp, err := c.Service.GetByID(id)
 	if err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return

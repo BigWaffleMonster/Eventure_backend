@@ -7,6 +7,6 @@ func SwaggerInfo(){
 	docs.SwaggerInfo.Title = "Eventura app"
 	docs.SwaggerInfo.Description = "Simple app to plan your celebration"
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.Host = "localhost:5500"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 }

@@ -5,8 +5,8 @@ import (
 )
 
 type CategoryRepository interface {
-	GetCategoryList() (*[]Category, error)
-	GetCategoryByID(id uint) (*Category, error)
+	GetCollection() (*[]Category, error)
+	GetByID(id uint) (*Category, error)
 }
 
 type categoryRepository struct {
@@ -17,7 +17,7 @@ func NewCategoryRepository(db *gorm.DB) CategoryRepository {
 	return &categoryRepository{DB: db}
 }
 
-func (r *categoryRepository) GetCategoryList() (*[]Category, error) {
+func (r *categoryRepository) GetCollection() (*[]Category, error) {
 	var category []Category
 	result := r.DB.Find(&category)
 
@@ -28,7 +28,7 @@ func (r *categoryRepository) GetCategoryList() (*[]Category, error) {
 	return &category, nil
 }
 
-func (r *categoryRepository) GetCategoryByID(id uint) (*Category, error) {
+func (r *categoryRepository) GetByID(id uint) (*Category, error) {
 	var category Category
 	result := r.DB.Where("id = ?", id).First(&category)
 	if result.Error != nil {

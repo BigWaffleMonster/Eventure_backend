@@ -8,7 +8,6 @@ import (
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/category"
 	"github.com/BigWaffleMonster/Eventure_backend/internal/event"
-	"github.com/BigWaffleMonster/Eventure_backend/internal/notification"
 	"github.com/BigWaffleMonster/Eventure_backend/internal/participant"
 	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
 	"gorm.io/driver/postgres"
@@ -35,7 +34,7 @@ func InitDB() (*gorm.DB, error) {
 		}
 
 		//err = db.SetupJoinTable(&event.Event{}, "Users", &participant.Participant{})
-		db.AutoMigrate(&user.User{}, &event.Event{}, &category.Category{}, &participant.Participant{}, &notification.Notification{})
+		db.AutoMigrate(&user.User{}, &event.Event{}, &category.Category{}, &participant.Participant{})
 
 		if err == nil {
 			log.Println("Successfully migrate!")
