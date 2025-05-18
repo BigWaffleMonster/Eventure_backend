@@ -4,26 +4,19 @@ import (
 	"net/http"
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/participant"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
-
-type ParticipantController interface {
-	Create(ctx *gin.Context)
-	ChangeState(ctx *gin.Context)
-	Remove(ctx *gin.Context)
-	GetByID(ctx *gin.Context)
-	GetCollection(ctx *gin.Context)
-}
-
-type participantController struct {
+type ParticipantController struct {
 	Service participant.ParticipantService
 }
 
-func NewParticipantController(service participant.ParticipantService) ParticipantController {
-	return &participantController{Service: service}
+func NewParticipantController(service participant.ParticipantService) *ParticipantController {
+	return &ParticipantController{Service: service}
 }
 
+// @Security ApiKeyAuth
 // @summary Создание участника
 // @schemes
 // @description Создание участника
@@ -36,7 +29,7 @@ func NewParticipantController(service participant.ParticipantService) Participan
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /participant [post]
-func (c *participantController) Create(ctx *gin.Context) {
+func (c *ParticipantController) Create(ctx *gin.Context) {
 	var body participant.ParticipantInput
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -44,7 +37,9 @@ func (c *participantController) Create(ctx *gin.Context) {
 		return
 	}
 
-	err := c.Service.Create(&body)
+	currentUser := ctx.MustGet(auth.CurrentUserVarName).(*auth.CurrentUser)
+
+	err := c.Service.Create(&body, currentUser)
 	if err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
@@ -53,6 +48,7 @@ func (c *participantController) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, gin.H{})
 }
 
+// @Security ApiKeyAuth
 // @summary Обновить участника
 // @schemes
 // @description Обновить участника
@@ -66,7 +62,7 @@ func (c *participantController) Create(ctx *gin.Context) {
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /participant/{id} [put]
-func (c *participantController) ChangeState(ctx *gin.Context) {
+func (c *ParticipantController) ChangeState(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil{
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -80,7 +76,9 @@ func (c *participantController) ChangeState(ctx *gin.Context) {
 		return
 	}
 
-	err = c.Service.ChangeState(id, &body)
+	currentUser := ctx.MustGet(auth.CurrentUserVarName).(auth.CurrentUser)
+
+	err = c.Service.ChangeState(id, &body, currentUser)
 	if err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
@@ -89,6 +87,7 @@ func (c *participantController) ChangeState(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, gin.H{})
 }
 
+// @Security ApiKeyAuth
 // @summary Удаление участника
 // @schemes
 // @description Удаление участника
@@ -101,14 +100,16 @@ func (c *participantController) ChangeState(ctx *gin.Context) {
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /participant/{id} [delete]
-func (c *participantController) Remove(ctx *gin.Context) {
+func (c *ParticipantController) Remove(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil{
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = c.Service.Remove(id)
+	currentUser := ctx.MustGet(auth.CurrentUserVarName).(auth.CurrentUser)
+
+	err = c.Service.Remove(id, currentUser)
 	if err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
@@ -117,6 +118,7 @@ func (c *participantController) Remove(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, gin.H{})
 }
 
+// @Security ApiKeyAuth
 // @summary Получение участника
 // @schemes
 // @description Получение участника
@@ -129,14 +131,16 @@ func (c *participantController) Remove(ctx *gin.Context) {
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /participant/{id} [get]
-func (c *participantController) GetByID(ctx *gin.Context) {
+func (c *ParticipantController) GetByID(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil{
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	participantView, err := c.Service.GetByID(id)
+	currentUser := ctx.MustGet(auth.CurrentUserVarName).(auth.CurrentUser)
+
+	participantView, err := c.Service.GetByID(id, currentUser)
 	if err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
@@ -146,26 +150,52 @@ func (c *participantController) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, participantView)
 }
 
+// @Security ApiKeyAuth
 // @summary Получение участников события
 // @schemes
 // @description Получение участников события
 // @tags participant
 // @accept json
 // @produce json
-// @param id path string true "Идентификатор события"
+// @param eventId path string true "Идентификатор события"
 // @success 200 {object} []participant.ParticipantView
 // @failure 400 {string} string "error"
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
-// @router /participant [get]
-func (c *participantController) GetCollection(ctx *gin.Context) {
-	id, err := uuid.Parse(ctx.Param("id"))
+// @router /participant/event [get]
+func (c *ParticipantController) GetCollection(ctx *gin.Context) {
+	eventID, err := uuid.Parse(ctx.Param("eventI"))
 	if err != nil{
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	participantViews, err := c.Service.GetCollection(id)
+	participantViews, err := c.Service.GetCollection(eventID)
+	if err != nil {
+		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.Header("Content-Type", "application/json")
+	ctx.JSON(http.StatusOK, participantViews)
+}
+
+// @Security ApiKeyAuth
+// @summary Получение своих записей
+// @schemes
+// @description Получение своих записей
+// @tags participant
+// @accept json
+// @produce json
+// @success 200 {object} []participant.ParticipantView
+// @failure 400 {string} string "error"
+// @failure 409 {string} string "error"
+// @failure 500 {string} string "error"
+// @router /participant [get]
+func (c *ParticipantController) GetOwnedCollection(ctx *gin.Context) {
+	currentUser := ctx.MustGet(auth.CurrentUserVarName).(*auth.CurrentUser)
+
+	participantViews, err := c.Service.GetOwnedCollection(currentUser)
 	if err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return

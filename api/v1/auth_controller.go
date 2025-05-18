@@ -7,23 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AuthController interface {
-	Register(ctx *gin.Context)
-	Login(ctx *gin.Context)
-	RefreshToken(ctx *gin.Context)
-}
-
-type authController struct {
+type AuthController struct {
 	Service auth.AuthService
 }
 
-func NewAuthController(service auth.AuthService) AuthController {
-	return &authController{Service: service}
+func NewAuthController(service auth.AuthService) *AuthController {
+	return &AuthController{Service: service}
 }
 
-// @summary Зарегестрирвоаться
+// @summary Регистрация нового пользователя
 // @schemes
-// @description Зарегестрирвоаться
+// @description Регистрация нового пользователя
 // @tags auth
 // @accept json
 // @produce json
@@ -33,7 +27,7 @@ func NewAuthController(service auth.AuthService) AuthController {
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /register [post]
-func (c *authController) Register(ctx *gin.Context) {
+func (c *AuthController) Register(ctx *gin.Context) {
 	var body auth.RegisterInput
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -47,7 +41,7 @@ func (c *authController) Register(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"data": resp})
+	ctx.JSON(http.StatusCreated, resp)
 }
 
 // @summary Войти в систему
@@ -62,7 +56,7 @@ func (c *authController) Register(ctx *gin.Context) {
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /login [post]
-func (c *authController) Login(ctx *gin.Context) {
+func (c *AuthController) Login(ctx *gin.Context) {
 	var body auth.LoginInput
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -76,7 +70,7 @@ func (c *authController) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": tokens})
+	ctx.JSON(http.StatusOK, tokens)
 }
 
 // @summary Обновить токен
@@ -91,7 +85,7 @@ func (c *authController) Login(ctx *gin.Context) {
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
 // @router /refresh [post]
-func (c *authController) RefreshToken(ctx *gin.Context) {
+func (c *AuthController) RefreshToken(ctx *gin.Context) {
 	var refreshInput auth.RefreshInput
 
 	if err := ctx.ShouldBindJSON(&refreshInput); err != nil {
@@ -105,5 +99,5 @@ func (c *authController) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": tokens})
+	ctx.JSON(http.StatusOK, tokens)
 }

@@ -2,47 +2,43 @@ package auth
 
 import (
 	"errors"
-	"os"
 	"time"
 
+	"github.com/BigWaffleMonster/Eventure_backend/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-// ValidateAccessToken validates the access token
-var accessKey string = os.Getenv("JWT_ACCESS_SECRET")
-var refreshKey string = os.Getenv("JWT_REFRESH_SECRET")
-
-func ValidateAccessToken(tokenString string) (*Claims, error) {
-	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return accessKey, nil
+func ValidateAccessToken(tokenString string, config utils.ServerConfig) (*CurrentUser, error) {
+	currentUser := &CurrentUser{}
+	token, err := jwt.ParseWithClaims(tokenString, currentUser, func(token *jwt.Token) (interface{}, error) {
+		return config.JWT_SECRET, nil
 	})
 
 	if err != nil || !token.Valid {
 		return nil, errors.New("invalid access token")
 	}
 
-	return claims, nil
+	return currentUser, nil
 }
 
 // ValidateRefreshToken validates the refresh token
-func ValidateRefreshToken(tokenString string) (*Claims, error) {
-	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return refreshKey, nil
+func ValidateRefreshToken(tokenString string, config utils.ServerConfig) (*CurrentUser, error) {
+	currentUser := &CurrentUser{}
+	token, err := jwt.ParseWithClaims(tokenString, currentUser, func(token *jwt.Token) (interface{}, error) {
+		return config.JWT_SECRET_REFRESH, nil
 	})
 
 	if err != nil || !token.Valid {
 		return nil, errors.New("invalid refresh token")
 	}
 
-	return claims, nil
+	return currentUser, nil
 }
 
-func GenerateAccessToken(email string, ID uuid.UUID) (string, error) {
+func GenerateAccessToken(email string, ID uuid.UUID, config utils.ServerConfig) (string, error) {
 	expirationTime := time.Now().Add(60 * time.Minute) // Token expires in 5 minutes
-	claims := &Claims{
+	currentUser := &CurrentUser{
 		Email: email,
 		ID:    ID,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -50,13 +46,13 @@ func GenerateAccessToken(email string, ID uuid.UUID) (string, error) {
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(accessKey)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, currentUser)
+	return token.SignedString([]byte(config.JWT_SECRET))
 }
 
-func GenerateRefreshToken(email string, ID uuid.UUID) (string, error) {
+func GenerateRefreshToken(email string, ID uuid.UUID, config utils.ServerConfig) (string, error) {
 	expirationTime := time.Now().Add(7 * 24 * time.Hour) // Token expires in 7 days
-	claims := &Claims{
+	currentUser := &CurrentUser{
 		Email: email,
 		ID:    ID,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -64,6 +60,6 @@ func GenerateRefreshToken(email string, ID uuid.UUID) (string, error) {
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(os.Getenv(refreshKey))
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, currentUser)
+	return token.SignedString([]byte(config.JWT_SECRET_REFRESH))
 }
