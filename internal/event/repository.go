@@ -11,6 +11,7 @@ type EventRepository interface{
 	Remove(id uuid.UUID) error
 	GetByID(id uuid.UUID) (*Event, error)
 	GetCollection() (*[]Event, error)
+	GetOwnedCollection(currentUserID uuid.UUID) (*[]Event, error)
 }
 
 type eventRepository struct {
@@ -36,7 +37,7 @@ func (r *eventRepository) Update(event *Event) error {
 
 func (r *eventRepository) GetByID(id uuid.UUID) (*Event, error) {
 	var event Event
-	result := r.DB.Where("id = ?", id).First(&event)
+	result := r.DB.First(&event, "id = ?", id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -47,6 +48,17 @@ func (r *eventRepository) GetCollection() (*[]Event, error){
 	var events []Event
 
 	result := r.DB.Find(&events)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &events, nil
+}
+
+func (r *eventRepository) GetOwnedCollection(currentUserID uuid.UUID) (*[]Event, error){
+	var events []Event
+
+	result := r.DB.Find(&events, "owner_id = ?", currentUserID)
 
 	if result.Error != nil {
 		return nil, result.Error

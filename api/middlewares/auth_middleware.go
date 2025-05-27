@@ -2,16 +2,16 @@ package middlewares
 
 import (
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
+	"github.com/BigWaffleMonster/Eventure_backend/utils"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(config utils.ServerConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -27,9 +27,9 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claims := &auth.Claims{}
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return os.Getenv("JWT_SECRET"), nil
+		currentUser := &auth.CurrentUser{}
+		token, err := jwt.ParseWithClaims(tokenString, currentUser, func(token *jwt.Token) (interface{}, error) {
+			return []byte(config.JWT_SECRET), nil
 		})
 
 		if err != nil || !token.Valid {
@@ -38,7 +38,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("claims", claims)
+		c.Set(auth.CurrentUserVarName, currentUser)
 		c.Next()
 	}
 }

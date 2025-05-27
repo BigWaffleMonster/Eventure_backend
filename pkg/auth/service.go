@@ -3,10 +3,12 @@ package auth
 import (
 	"errors"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/BigWaffleMonster/Eventure_backend/helpers"
 	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
+	"github.com/BigWaffleMonster/Eventure_backend/utils"
 	"github.com/google/uuid"
 )
 
@@ -17,11 +19,15 @@ type AuthService interface {
 }
 
 type authService struct {
+	Config utils.ServerConfig
 	Repo user.UserRepository
 }
 
-func NewAuthService(repo user.UserRepository) AuthService {
-	return &authService{Repo: repo}
+func NewAuthService(repo user.UserRepository, config utils.ServerConfig) AuthService {
+	return &authService{
+		Repo: repo,
+		Config: config,
+	}
 }
 
 func (s *authService) Register(data RegisterInput) (string, error) {
@@ -49,6 +55,7 @@ func (s *authService) Register(data RegisterInput) (string, error) {
 	userModel.ID = uuid.New()
 	userModel.Email = data.Email
 	userModel.DateCreated = time.Now()
+	userModel.UserName = strings.Split(data.Email,`@`)[0]
 
 	err := s.Repo.Create(&userModel)
 	if err != nil {
@@ -69,7 +76,7 @@ func (s *authService) Login(data LoginInput) (map[string]string, error) {
 	}
 
 	if data.Password != nil {
-		passwordHashCheckResult := helpers.CheckPasswordHash(existingUser.Password, *data.Password)
+		passwordHashCheckResult := helpers.CheckPasswordHash(*data.Password, existingUser.Password)
 		if !passwordHashCheckResult {
 			return nil, errors.New("password don`t match")
 		}
@@ -77,12 +84,12 @@ func (s *authService) Login(data LoginInput) (map[string]string, error) {
 		//checkTempPassword
 	}
 
-	accessToken, err := GenerateAccessToken(existingUser.Email, existingUser.ID)
+	accessToken, err := GenerateAccessToken(existingUser.Email, existingUser.ID, s.Config)
 	if err != nil {
 		return nil, errors.New("error Generating Token")
 	}
 
-	refreshToken, err := GenerateRefreshToken(existingUser.Email, existingUser.ID)
+	refreshToken, err := GenerateRefreshToken(existingUser.Email, existingUser.ID, s.Config)
 	if err != nil {
 		return nil, errors.New("error Generating Token")
 	}
@@ -99,7 +106,7 @@ func (s *authService) Login(data LoginInput) (map[string]string, error) {
 }
 
 func (s *authService) RefreshToken(data RefreshInput) (map[string]string, error) {
-	claims, err := ValidateRefreshToken(data.RefreshToken)
+	claims, err := ValidateRefreshToken(data.RefreshToken, s.Config)
 	if err != nil {
 		return nil, errors.New("invalid refresh token")
 	}
@@ -110,13 +117,13 @@ func (s *authService) RefreshToken(data RefreshInput) (map[string]string, error)
 	}
 
 	// Generate a new access token
-	newAccessToken, err := GenerateAccessToken(claims.Email, claims.ID)
+	newAccessToken, err := GenerateAccessToken(claims.Email, claims.ID, s.Config)
 	if err != nil {
 		return nil, errors.New("error generating access token")
 	}
 
 	// Optionally generate a new refresh token
-	newRefreshToken, err := GenerateRefreshToken(claims.Email, claims.ID)
+	newRefreshToken, err := GenerateRefreshToken(claims.Email, claims.ID, s.Config)
 	if err != nil {
 		return nil, errors.New("error generating refresh token")
 	}

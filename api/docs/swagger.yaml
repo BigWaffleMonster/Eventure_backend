@@ -1,5 +1,12 @@
 basePath: /api/v1
 definitions:
+  github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
   github_com_BigWaffleMonster_Eventure_backend_internal_event.EventInput:
     description: Событие
     properties:
@@ -135,7 +142,6 @@ definitions:
       password:
         type: string
     type: object
-host: localhost:8080
 info:
   contact:
     email: rachkov.work@gmail.com, Sergei.m.khanlarov@gmail.com, me@justwalsdi.ru
@@ -144,6 +150,68 @@ info:
   title: Eventura app
   version: "1.0"
 paths:
+  /category:
+    get:
+      consumes:
+      - application/json
+      description: Получение категорий
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView'
+            type: array
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Получение категорий
+      tags:
+      - category
+  /category/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Получение категории
+      parameters:
+      - description: Идентификатор категории
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView'
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Получение категории
+      tags:
+      - category
   /event:
     get:
       consumes:
@@ -170,6 +238,8 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Получение событий
       tags:
       - event
@@ -200,6 +270,8 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Создание события
       tags:
       - event
@@ -231,6 +303,8 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Удаление события
       tags:
       - event
@@ -263,6 +337,8 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Получение события
       tags:
       - event
@@ -298,7 +374,40 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Обновление события
+      tags:
+      - event
+  /event/private:
+    get:
+      consumes:
+      - application/json
+      description: Получение событий
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView'
+            type: array
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Получение событий
       tags:
       - event
   /login:
@@ -338,13 +447,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Получение участников события
-      parameters:
-      - description: Идентификатор события
-        in: path
-        name: id
-        required: true
-        type: string
+      description: Получение своих записей
       produces:
       - application/json
       responses:
@@ -366,7 +469,9 @@ paths:
           description: error
           schema:
             type: string
-      summary: Получение участников события
+      security:
+      - ApiKeyAuth: []
+      summary: Получение своих записей
       tags:
       - participant
     post:
@@ -396,6 +501,8 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Создание участника
       tags:
       - participant
@@ -427,6 +534,8 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Удаление участника
       tags:
       - participant
@@ -459,6 +568,8 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Получение участника
       tags:
       - participant
@@ -494,7 +605,46 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Обновить участника
+      tags:
+      - participant
+  /participant/event:
+    get:
+      consumes:
+      - application/json
+      description: Получение участников события
+      parameters:
+      - description: Идентификатор события
+        in: path
+        name: eventId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView'
+            type: array
+        "400":
+          description: error
+          schema:
+            type: string
+        "409":
+          description: error
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Получение участников события
       tags:
       - participant
   /refresh:
@@ -534,7 +684,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Зарегестрирвоаться
+      description: Регистрация нового пользователя
       parameters:
       - description: Данные о пользоавтеле для регистрации
         in: body
@@ -560,7 +710,7 @@ paths:
           description: error
           schema:
             type: string
-      summary: Зарегестрирвоаться
+      summary: Регистрация нового пользователя
       tags:
       - auth
   /user/{id}:
@@ -591,6 +741,8 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Удаление пользователя
       tags:
       - user
@@ -623,6 +775,8 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Получение пользователя
       tags:
       - user
@@ -658,6 +812,8 @@ paths:
           description: error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Обновление пользователя
       tags:
       - user
