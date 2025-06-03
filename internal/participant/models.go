@@ -9,9 +9,7 @@ import (
 type Participant struct {
 	ID          uuid.UUID `gorm:"primaryKey;type:uuid"`
 	UserID      uuid.UUID `gorm:"type:uuid"`
-	//User        user.User   `gorm:"foreignKey:UserID"`
 	EventID     uuid.UUID `gorm:"type:uuid"`
-	//Event       event.Event `gorm:"foreignKey:EventID"`
 	Status      string    `sql:"type:ENUM('Yes', 'No', 'Maybe')"`
 	Ticket      string
 	DateCreated time.Time `gorm:"autoCreateTime"`
