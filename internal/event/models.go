@@ -18,11 +18,7 @@ type Event struct {
 	EndDate              time.Time
 	DateCreated          time.Time
 	DateUpdated          time.Time `gorm:"autoUpdateTime"`
-
-	//User  user.User   `gorm:"foreignKey:OwnerID"`
-
 	CategoryID uuid.UUID         `gorm:"type:uuid"`
-	//Category   category.Category `gorm:"foreignKey:CategoryID"`
 }
 
 // @description Событие

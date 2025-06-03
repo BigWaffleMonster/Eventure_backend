@@ -4,6 +4,8 @@ import (
 	"errors"
 
 	"github.com/BigWaffleMonster/Eventure_backend/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 )
@@ -16,10 +18,14 @@ type UserService interface {
 
 type userService struct {
 	Repo UserRepository
+	DomainEventBus domain_events_abstractions.DomainEventBus
 }
 
-func NewUserService(repo UserRepository) UserService {
-	return &userService{Repo: repo}
+func NewUserService(repo UserRepository, eventBus domain_events_abstractions.DomainEventBus) UserService {
+	return &userService{
+		Repo: repo,
+		DomainEventBus: eventBus,
+	}
 }
 
 func (s *userService) GetByID(id uuid.UUID) (*UserView, error) {
@@ -69,10 +75,11 @@ func (s *userService) Update(id uuid.UUID, data *UserUpdateInput) error {
 }
 
 func (s *userService) Remove(id uuid.UUID) error {
-	err := s.Repo.Remove(id)
+	domainEventData, err := domain_events.NewUserDeletedDomainEvent(id)
+
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return s.DomainEventBus.AddToStore(domainEventData)
 }

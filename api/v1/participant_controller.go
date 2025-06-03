@@ -162,9 +162,9 @@ func (c *ParticipantController) GetByID(ctx *gin.Context) {
 // @failure 400 {string} string "error"
 // @failure 409 {string} string "error"
 // @failure 500 {string} string "error"
-// @router /participant/event [get]
+// @router /participant/event/{eventId} [get]
 func (c *ParticipantController) GetCollection(ctx *gin.Context) {
-	eventID, err := uuid.Parse(ctx.Param("eventI"))
+	eventID, err := uuid.Parse(ctx.Param("eventId"))
 	if err != nil{
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
