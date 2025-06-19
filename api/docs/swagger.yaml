@@ -610,7 +610,7 @@ paths:
       summary: Обновить участника
       tags:
       - participant
-  /participant/event:
+  /participant/event/{eventId}:
     get:
       consumes:
       - application/json

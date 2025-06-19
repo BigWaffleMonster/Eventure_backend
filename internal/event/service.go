@@ -4,6 +4,8 @@ import (
 	"errors"
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/helpers"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -20,10 +22,14 @@ type EventService interface{
 
 type eventService struct {
 	Repository EventRepository
+	DomainEventBus domain_events_abstractions.DomainEventBus
 }
 
-func NewEventService(repository EventRepository) EventService {
-	return &eventService{Repository: repository}
+func NewEventService(repository EventRepository, eventBus domain_events_abstractions.DomainEventBus) EventService {
+	return &eventService{
+		Repository: repository,
+		DomainEventBus: eventBus,
+	}
 }
 
 func (s *eventService) Create(data *EventInput, currentUser *auth.CurrentUser) (error) {
@@ -35,6 +41,7 @@ func (s *eventService) Create(data *EventInput, currentUser *auth.CurrentUser) (
 	event := Event{
 		ID: uuid.New(),
 		OwnerID: currentUser.ID,
+		MaxQtyParticipants: *data.MaxQtyParticipants,
 		Title: *data.Title,
 		Description: *data.Description,
 		Location: *data.Location,
@@ -89,6 +96,18 @@ func (s *eventService) Update(id uuid.UUID, data *EventInput) (error) {
 }
 
 func (s *eventService) Remove(id uuid.UUID) (error) {
+	domainEventData, err := domain_events.NewEventDeletedDomainEvent(id)
+
+	if err != nil {
+		return err
+	}
+
+	err = s.DomainEventBus.AddToStore(domainEventData)
+
+	if err != nil {
+		return err
+	}
+
 	return s.Repository.Remove(id)
 }
 

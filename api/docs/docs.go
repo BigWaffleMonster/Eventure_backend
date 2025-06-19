@@ -575,7 +575,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/participant/event": {
+        "/participant/event/{eventId}": {
             "get": {
                 "security": [
                     {
