@@ -4,6 +4,8 @@ import (
 	"errors"
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/helpers"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -19,24 +21,26 @@ type ParticipantService interface{
 }
 
 type participantService struct {
+	DomainEventBus domain_events_abstractions.DomainEventBus
 	Repository ParticipantRepository
 }
 
-func NewParticipantService(repository ParticipantRepository) ParticipantService {
-	return &participantService{Repository: repository}
+func NewParticipantService(repository ParticipantRepository, eventBus domain_events_abstractions.DomainEventBus) ParticipantService {
+	return &participantService{
+		Repository: repository,
+		DomainEventBus: eventBus,
+	}
 }
 
 func (s *participantService) Create(data *ParticipantInput, currentUser *auth.CurrentUser) (error) {
 
-	participant := Participant{
-		ID: uuid.New(),
-		UserID: currentUser.ID,
-		EventID: *data.EventID,
-		Status: *data.Status,
-		Ticket: "",
+	domainEventData, err := domain_events.NewParticipantCreatedDomainEvent(*data.EventID, currentUser.ID, *data.Status, "")
+
+	if err != nil {
+		return err
 	}
-	
-	return s.Repository.Create(&participant)
+
+	return s.DomainEventBus.AddToStore(domainEventData)
 }
 
 func (s *participantService) ChangeState(id uuid.UUID, state *string, currentUser auth.CurrentUser) (error) {
@@ -67,7 +71,7 @@ func (s *participantService) Remove(id uuid.UUID, currentUser auth.CurrentUser) 
 	if participant.UserID != currentUser.ID{
 		return errors.New("Forbibben")//TODO: нормальное описание ошиьки и код
 	}
-	
+
 	return s.Repository.Remove(id)
 }
 

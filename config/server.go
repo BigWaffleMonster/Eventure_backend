@@ -7,6 +7,7 @@ import (
 
 	"github.com/BigWaffleMonster/Eventure_backend/api"
 	v1 "github.com/BigWaffleMonster/Eventure_backend/api/v1"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
 	"github.com/BigWaffleMonster/Eventure_backend/utils"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -22,6 +23,7 @@ type NewServerParams struct {
 	EventController *v1.EventController
 	ParticipantController *v1.ParticipantController
 	UserController *v1.UserController
+	DomainEventQueue domain_events_abstractions.DomainEventQueue
 	ServerConfig utils.ServerConfig
 }
 
@@ -50,6 +52,8 @@ func NewServer(lc fx.Lifecycle, p NewServerParams) {
 
 	go RunServer(router, p.ServerConfig)
 
+	p.DomainEventQueue.StartQueue()
+	
 	return nil
  }
 
