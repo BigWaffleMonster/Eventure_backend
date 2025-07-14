@@ -5,6 +5,7 @@ import (
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/event"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/responses"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -25,28 +26,31 @@ func NewEventController(service event.EventService) *EventController {
 // @accept json
 // @produce json
 // @param event body event.EventInput false "Событие"
-// @success 204 
-// @failure 400 {string} string "error"
-// @failure 409 {string} string "error"
-// @failure 500 {string} string "error"
+// @success 201 {object} responses.ResponseOkString
+// @failure 400 {object} responses.ResponseFailed
+// @failure 401 {object} responses.ResponseFailed
+// @failure 403 {object} responses.ResponseFailed
+// @failure 404 {object} responses.ResponseFailed
+// @failure 409 {object} responses.ResponseFailed
+// @failure 500 {object} responses.ResponseFailed
 // @router /event [post]
 func (c *EventController) Create(ctx *gin.Context) {
 	var body event.EventInput
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to create event", []string{err.Error()}))
 		return
 	}
 
 	currentUser := ctx.MustGet(auth.CurrentUserVarName).(*auth.CurrentUser)
 
-	err := c.Service.Create(&body, currentUser)
-	if err != nil {
-		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+	result := c.Service.Create(&body, currentUser)
+	if result.IsFailed {
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to create event", result.Errors))
 		return
 	}
 
-	ctx.JSON(http.StatusNoContent, gin.H{})
+	ctx.JSON(http.StatusCreated, responses.NewResponseOkString("Created event success"))
 }
 
 // @Security ApiKeyAuth
@@ -59,27 +63,30 @@ func (c *EventController) Create(ctx *gin.Context) {
 // @param id path string true "Event ID"
 // @param event body event.EventInput false "Событие"
 // @success 204 
-// @failure 400 {string} string "error"
-// @failure 409 {string} string "error"
-// @failure 500 {string} string "error"
+// @failure 400 {object} responses.ResponseFailed
+// @failure 401 {object} responses.ResponseFailed
+// @failure 403 {object} responses.ResponseFailed
+// @failure 404 {object} responses.ResponseFailed
+// @failure 409 {object} responses.ResponseFailed
+// @failure 500 {object} responses.ResponseFailed
 // @router /event/{id} [put]
 func (c *EventController) Update(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil{
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to update event", []string{err.Error()}))
 		return
 	}
 
 	var body event.EventInput
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to update event", []string{err.Error()}))
 		return
 	}
 
-	err = c.Service.Update(id, &body)
-	if err != nil {
-		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+	result := c.Service.Update(id, &body)
+	if result.IsFailed {
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to update event", result.Errors))
 		return
 	}
 
@@ -95,20 +102,23 @@ func (c *EventController) Update(ctx *gin.Context) {
 // @produce json
 // @param id path string true "Идентификатор события"
 // @success 204 
-// @failure 400 {string} string "error"
-// @failure 409 {string} string "error"
-// @failure 500 {string} string "error"
+// @failure 400 {object} responses.ResponseFailed
+// @failure 401 {object} responses.ResponseFailed
+// @failure 403 {object} responses.ResponseFailed
+// @failure 404 {object} responses.ResponseFailed
+// @failure 409 {object} responses.ResponseFailed
+// @failure 500 {object} responses.ResponseFailed
 // @router /event/{id} [delete]
-func (c *EventController) Remove(ctx *gin.Context) {
+func (c *EventController) Delete(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil{
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to delete event", []string{err.Error()}))
 		return
 	}
 
-	err = c.Service.Remove(id)
-	if err != nil {
-		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+	result := c.Service.Delete(id)
+	if result.IsFailed {
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to delete event", result.Errors))
 		return
 	}
 
@@ -123,26 +133,29 @@ func (c *EventController) Remove(ctx *gin.Context) {
 // @accept json
 // @produce json
 // @param id path string true "Идентификатор события"
-// @success 200 {object} event.EventView
-// @failure 400 {string} string "error"
-// @failure 409 {string} string "error"
-// @failure 500 {string} string "error"
+// @success 200 {object} responses.ResponseOk[event.EventView]
+// @failure 400 {object} responses.ResponseFailed
+// @failure 401 {object} responses.ResponseFailed
+// @failure 403 {object} responses.ResponseFailed
+// @failure 404 {object} responses.ResponseFailed
+// @failure 409 {object} responses.ResponseFailed
+// @failure 500 {object} responses.ResponseFailed
 // @router /event/{id} [get]
 func (c *EventController) GetByID(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil{
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to get event", []string{err.Error()}))
 		return
 	}
 
-	eventView, err := c.Service.GetByID(id)
-	if err != nil {
-		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+	eventView, result := c.Service.GetByID(id)
+	if result.IsFailed {
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get event", result.Errors))
 		return
 	}
 
 	ctx.Header("Content-Type", "application/json")
-	ctx.JSON(http.StatusOK, eventView)
+	ctx.JSON(http.StatusOK, responses.NewResponseOk(&eventView, "Get event success"))
 }
 
 // @Security ApiKeyAuth
@@ -152,20 +165,23 @@ func (c *EventController) GetByID(ctx *gin.Context) {
 // @tags event
 // @accept json
 // @produce json
-// @success 200 {object} []event.EventView
-// @failure 400 {string} string "error"
-// @failure 409 {string} string "error"
-// @failure 500 {string} string "error"
+// @success 200 {object} responses.ResponseOk[[]event.EventView]
+// @failure 400 {object} responses.ResponseFailed
+// @failure 401 {object} responses.ResponseFailed
+// @failure 403 {object} responses.ResponseFailed
+// @failure 404 {object} responses.ResponseFailed
+// @failure 409 {object} responses.ResponseFailed
+// @failure 500 {object} responses.ResponseFailed
 // @router /event [get]
 func (c *EventController) GetCollection(ctx *gin.Context) {
-	eventViews, err := c.Service.GetCollection()
-	if err != nil {
-		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+	eventViews, result := c.Service.GetCollection()
+	if result.IsFailed {
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get events", result.Errors))
 		return
 	}
 
 	ctx.Header("Content-Type", "application/json")
-	ctx.JSON(http.StatusOK, eventViews)
+	ctx.JSON(http.StatusOK, responses.NewResponseOk(&eventViews, "Get events success"))
 }
 
 // @Security ApiKeyAuth
@@ -175,20 +191,23 @@ func (c *EventController) GetCollection(ctx *gin.Context) {
 // @tags event
 // @accept json
 // @produce json
-// @success 200 {object} []event.EventView
-// @failure 400 {string} string "error"
-// @failure 409 {string} string "error"
-// @failure 500 {string} string "error"
+// @success 200 {object} responses.ResponseOk[[]event.EventView]
+// @failure 400 {object} responses.ResponseFailed
+// @failure 401 {object} responses.ResponseFailed
+// @failure 403 {object} responses.ResponseFailed
+// @failure 404 {object} responses.ResponseFailed
+// @failure 409 {object} responses.ResponseFailed
+// @failure 500 {object} responses.ResponseFailed
 // @router /event/private [get]
 func (c *EventController) GetOwnedCollection(ctx *gin.Context) {
 	currentUser := ctx.MustGet(auth.CurrentUserVarName).(*auth.CurrentUser)
 
-	eventViews, err := c.Service.GetOwnedCollection(currentUser)
-	if err != nil {
-		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+	eventViews, result := c.Service.GetOwnedCollection(currentUser)
+	if result.IsFailed {
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get events", result.Errors))
 		return
 	}
 
 	ctx.Header("Content-Type", "application/json")
-	ctx.JSON(http.StatusOK, eventViews)
+	ctx.JSON(http.StatusOK, responses.NewResponseOk(&eventViews, "Get events success"))
 }

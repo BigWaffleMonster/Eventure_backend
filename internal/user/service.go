@@ -1,19 +1,18 @@
 package user
 
 import (
-	"errors"
-
 	"github.com/BigWaffleMonster/Eventure_backend/helpers"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 )
 
 type UserService interface {
-	GetByID(id uuid.UUID) (*UserView, error)
-	Update(id uuid.UUID, data *UserUpdateInput) error
-	Remove(id uuid.UUID) error
+	GetByID(id uuid.UUID) (*UserView, results.Result)
+	Update(id uuid.UUID, data *UserUpdateInput) results.Result
+	Delete(id uuid.UUID) results.Result
 }
 
 type userService struct {
@@ -28,23 +27,23 @@ func NewUserService(repo UserRepository, eventBus domain_events_abstractions.Dom
 	}
 }
 
-func (s *userService) GetByID(id uuid.UUID) (*UserView, error) {
+func (s *userService) GetByID(id uuid.UUID) (*UserView, results.Result) {
 	var userView UserView
 
-	data, err := s.Repo.GetByID(id)
-	if err != nil {
-		return nil, err
+	data, result := s.Repo.GetByID(id)
+	if result.IsFailed {
+		return nil, result
 	}
 
 	copier.Copy(&userView, &data)
 
-	return &userView, nil
+	return &userView, results.NewResultOk()
 }
 
-func (s *userService) Update(id uuid.UUID, data *UserUpdateInput) error {
-	user, err := s.Repo.GetByID(id)
-	if err != nil {
-		return err
+func (s *userService) Update(id uuid.UUID, data *UserUpdateInput) results.Result {
+	user, result := s.Repo.GetByID(id)
+	if result.IsFailed {
+		return result
 	}
 
 	if data.Email != nil {
@@ -60,25 +59,20 @@ func (s *userService) Update(id uuid.UUID, data *UserUpdateInput) error {
 	if data.Password != nil {
 		password, err := helpers.HashPassword(*data.Password)
 		if err != nil {
-			return errors.New("error with saving password")
+			return results.NewUnauthorizedError("Login or password is invalid")
 		}
 
 		user.Password = password
 	}
 
-	err = s.Repo.Update(user)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return s.Repo.Update(user)
 }
 
-func (s *userService) Remove(id uuid.UUID) error {
-	domainEventData, err := domain_events.NewUserDeletedDomainEvent(id)
+func (s *userService) Delete(id uuid.UUID) results.Result {
+	domainEventData, result := domain_events.NewUserDeletedDomainEvent(id)
 
-	if err != nil {
-		return err
+	if result.IsFailed {
+		return result
 	}
 
 	return s.DomainEventBus.AddToStore(domainEventData)

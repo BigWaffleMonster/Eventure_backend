@@ -2,13 +2,14 @@ package domain_events_handlers
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/participant"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 )
+
+const eventDeletedDomainType = "EventDeletedDomainEvent"
 
 type eventDeletedDomainEventHandler struct{
 	ParticipantRepo participant.ParticipantRepository
@@ -20,36 +21,36 @@ func NewEventDeletedDomainEventHandler(pRepo participant.ParticipantRepository) 
 	}
 }
 
-func (h * eventDeletedDomainEventHandler) Handle(domainEventData *domain_events_abstractions.DomainEventData) error {
+func (h * eventDeletedDomainEventHandler) Handle(domainEventData *domain_events_abstractions.DomainEventData) results.Result {
 
-	if domainEventData.Type != "EventDeletedDomainEvent" {
-		return fmt.Errorf("Failed")
+	if domainEventData.Type != eventDeletedDomainType {
+		return results.NewInvalidDomainTypeError(domainEventData.Type, eventDeletedDomainType)
 	}
 
 	var domainEvent domain_events.EventDeletedDomainEvent
 	err := json.Unmarshal([]byte(domainEventData.Content) , &domainEvent)
-	if err != nil {
-		log.Print(err)
-	}
+    if err != nil {
+        return results.NewInternalError(err.Error())
+    }
 
 	var participants *[]participant.Participant
 
-	participants, err = h.ParticipantRepo.GetCollection(domainEvent.EventID)
-	if err != nil {
-		return err
+	participants, result := h.ParticipantRepo.GetCollection(domainEvent.EventID)
+	if result.IsFailed {
+		return result
 	}
 
 	for _, p := range *participants {
-		err = h.ParticipantRepo.Remove(p.ID)
+		result = h.ParticipantRepo.Delete(p.ID)
 
-		if err != nil {
-			return err
+		if result.IsFailed {
+			return result
 		}
 	}
 
-	return nil
+	return results.NewResultOk()
 }
 
 func (h * eventDeletedDomainEventHandler) IsTypeOf(domainEventData *domain_events_abstractions.DomainEventData) bool {
-	return domainEventData.Type == "EventDeletedDomainEvent"
+	return domainEventData.Type == eventDeletedDomainType
 }

@@ -142,6 +142,84 @@ definitions:
       password:
         type: string
     type: object
+  github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed:
+    properties:
+      details:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+    type: object
+  ? github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_category_CategoryView
+  : properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView'
+        type: array
+      message:
+        type: string
+    type: object
+  ? github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_event_EventView
+  : properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView'
+        type: array
+      message:
+        type: string
+    type: object
+  ? github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_participant_ParticipantView
+  : properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView'
+        type: array
+      message:
+        type: string
+    type: object
+  github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_string:
+    properties:
+      data:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+    type: object
+  ? github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_category_CategoryView
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView'
+      message:
+        type: string
+    type: object
+  ? github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_event_EventView
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView'
+      message:
+        type: string
+    type: object
+  ? github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_participant_ParticipantView
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView'
+      message:
+        type: string
+    type: object
+  ? github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_user_UserView
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_user.UserView'
+      message:
+        type: string
+    type: object
+  github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOkString:
+    properties:
+      message:
+        type: string
+    type: object
 info:
   contact:
     email: rachkov.work@gmail.com, Sergei.m.khanlarov@gmail.com, me@justwalsdi.ru
@@ -161,21 +239,31 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView'
-            type: array
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_category_CategoryView'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       summary: Получение категорий
       tags:
       - category
@@ -196,19 +284,31 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView'
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_category_CategoryView'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       summary: Получение категории
       tags:
       - category
@@ -223,21 +323,31 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView'
-            type: array
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_event_EventView'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Получение событий
@@ -256,20 +366,34 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: No Content
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOkString'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Создание события
@@ -292,17 +416,29 @@ paths:
         "204":
           description: No Content
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Удаление события
@@ -324,19 +460,31 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView'
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_event_EventView'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Получение события
@@ -363,17 +511,29 @@ paths:
         "204":
           description: No Content
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Обновление события
@@ -390,21 +550,31 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView'
-            type: array
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_event_EventView'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Получение событий
@@ -425,21 +595,33 @@ paths:
       - application/json
       responses:
         "200":
-          description: created
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_string'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       summary: Войти в систему
       tags:
       - auth
@@ -454,21 +636,31 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView'
-            type: array
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_participant_ParticipantView'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Получение своих записей
@@ -487,20 +679,34 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: No Content
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOkString'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Создание участника
@@ -523,17 +729,29 @@ paths:
         "204":
           description: No Content
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Удаление участника
@@ -555,19 +773,31 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView'
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_participant_ParticipantView'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Получение участника
@@ -594,17 +824,29 @@ paths:
         "204":
           description: No Content
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Обновить участника
@@ -627,21 +869,31 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView'
-            type: array
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_participant_ParticipantView'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Получение участников события
@@ -662,21 +914,33 @@ paths:
       - application/json
       responses:
         "200":
-          description: created
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_string'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       summary: Обновить токен
       tags:
       - auth
@@ -695,21 +959,33 @@ paths:
       - application/json
       responses:
         "201":
-          description: created
+          description: Created
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOkString'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       summary: Регистрация нового пользователя
       tags:
       - auth
@@ -730,17 +1006,29 @@ paths:
         "204":
           description: No Content
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Удаление пользователя
@@ -762,19 +1050,31 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_user.UserView'
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_user_UserView'
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Получение пользователя
@@ -801,17 +1101,29 @@ paths:
         "204":
           description: No Content
         "400":
-          description: error
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "409":
-          description: error
+          description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
         "500":
-          description: error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       security:
       - ApiKeyAuth: []
       summary: Обновление пользователя

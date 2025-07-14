@@ -3,52 +3,57 @@ package domain_events_handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/event"
 	"github.com/BigWaffleMonster/Eventure_backend/internal/participant"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 )
+
+const participantCreatedDomainType = "ParticipantCreatedDomainEvent"
 
 type participantCreatedDomainEventHandler struct{
 	EventRepo event.EventRepository
 	ParticipantRepo participant.ParticipantRepository
 }
 
-func NewParticipantCreatedDomainEventHandler(eRepo event.EventRepository, pRepo participant.ParticipantRepository) domain_events_abstractions.DomainEventHandler{
+func NewParticipantCreatedDomainEventHandler(
+	eRepo event.EventRepository, 
+	pRepo participant.ParticipantRepository) domain_events_abstractions.DomainEventHandler{
+
 	return &participantCreatedDomainEventHandler{
 		EventRepo: eRepo,
 		ParticipantRepo: pRepo,
 	}
 }
 
-func (h * participantCreatedDomainEventHandler) Handle(domainEventData *domain_events_abstractions.DomainEventData) error {
+func (h * participantCreatedDomainEventHandler) Handle(domainEventData *domain_events_abstractions.DomainEventData) results.Result {
 
-	if domainEventData.Type != "ParticipantCreatedDomainEvent" {
-		return fmt.Errorf("failed to handler event. event type is incorrect")
+	if domainEventData.Type != participantCreatedDomainType {
+		return results.NewInvalidDomainTypeError(domainEventData.Type, participantCreatedDomainType)
 	}
 
 	var domainEvent domain_events.ParticipantCreatedDomainEvent
 	err := json.Unmarshal([]byte(domainEventData.Content) , &domainEvent)
-	if err != nil {
-		log.Print(err)
-	}
+    if err != nil {
+        return results.NewInternalError(err.Error())
+    }
 
 	var event *event.Event
 
-	event, err = h.EventRepo.GetByID(domainEvent.EventID)
-	if err != nil {
-		return err
+	event, result := h.EventRepo.GetByID(domainEvent.EventID)
+	if result.IsFailed {
+		return result
 	}
 
 	var participants *[]participant.Participant
 
-	participants, err = h.ParticipantRepo.GetCollection(domainEvent.EventID)
+	participants, result = h.ParticipantRepo.GetCollection(domainEvent.EventID)
 
-	if err != nil {
-		return err
+	if result.IsFailed {
+		return result
 	}
 
 	var participantsWhoGo []participant.Participant
@@ -62,13 +67,13 @@ func (h * participantCreatedDomainEventHandler) Handle(domainEventData *domain_e
 	if event.MaxQtyParticipants == len(participantsWhoGo){
 		//TODO: Notify user
 		fmt.Println("failed to create new participant, max QTY of participants reached")
-		return nil
+		return results.NewResultOk()
 	}
 
-	err = h.EventRepo.Update(event)
+	result = h.EventRepo.Update(event)
 
-	if err != nil {
-		return err
+	if result.IsFailed {
+		return result
 	}
 
 	participant := participant.Participant{
@@ -83,5 +88,5 @@ func (h * participantCreatedDomainEventHandler) Handle(domainEventData *domain_e
 }
 
 func (h * participantCreatedDomainEventHandler) IsTypeOf(domainEventData *domain_events_abstractions.DomainEventData) bool {
-	return domainEventData.Type == "ParticipantCreatedDomainEvent"
+	return domainEventData.Type == participantCreatedDomainType
 }

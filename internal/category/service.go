@@ -1,10 +1,13 @@
 package category
 
-import "github.com/jinzhu/copier"
+import (
+	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
+	"github.com/jinzhu/copier"
+)
 
 type CategoryService interface {
-	GetCollection() (*[]CategoryView, error)
-	GetByID(id uint) (*CategoryView, error)
+	GetCollection() (*[]CategoryView, results.Result)
+	GetByID(id uint) (*CategoryView, results.Result)
 }
 
 type categoryService struct {
@@ -15,28 +18,34 @@ func NewCategoryService(repo CategoryRepository) CategoryService {
 	return &categoryService{Repo: repo}
 }
 
-func (s *categoryService) GetCollection() (*[]CategoryView, error) {
+func (s *categoryService) GetCollection() (*[]CategoryView, results.Result) {
 	var categoryView []CategoryView
 
-	data, err := s.Repo.GetCollection()
-	if err != nil {
-		return nil, err
+	data, result := s.Repo.GetCollection()
+
+	if result.IsFailed {
+		return nil, result
 	}
 
 	copier.Copy(&categoryView, &data)
 
-	return &categoryView, nil
+	return &categoryView, results.NewResultOk()
 }
 
-func (s *categoryService) GetByID(id uint) (*CategoryView, error) {
+func (s *categoryService) GetByID(id uint) (*CategoryView, results.Result) {
 	var categoryView CategoryView
 
-	data, err := s.Repo.GetByID(id)
-	if err != nil {
-		return nil, err
+	data, result := s.Repo.GetByID(id)
+
+	if result.IsFailed {
+		return nil, result
+	}
+
+	if data == nil {
+		return nil, results.NewNotFoundError("Category")
 	}
 
 	copier.Copy(&categoryView, &data)
 
-	return &categoryView, nil
+	return &categoryView, results.NewResultOk()
 }
