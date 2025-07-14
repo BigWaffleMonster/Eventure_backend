@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/responses"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -25,21 +26,24 @@ func NewUserController(service user.UserService) *UserController {
 // @accept json
 // @produce json
 // @param id path string true "Идентиикатор пользователя"
-// @success 200 {object} user.UserView
-// @failure 400 {string} string "error"
-// @failure 409 {string} string "error"
-// @failure 500 {string} string "error"
+// @success 200 {object} responses.ResponseOk[user.UserView]
+// @failure 400 {object} responses.ResponseFailed
+// @failure 401 {object} responses.ResponseFailed
+// @failure 403 {object} responses.ResponseFailed
+// @failure 404 {object} responses.ResponseFailed
+// @failure 409 {object} responses.ResponseFailed
+// @failure 500 {object} responses.ResponseFailed
 // @router /user/{id} [get]
 func (c *UserController) GetByID(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to get user", []string{err.Error()}))
 		return
 	}
 
-	userView, err := c.Service.GetByID(id)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	userView, result := c.Service.GetByID(id)
+	if result.IsFailed {
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get user", result.Errors))
 		return
 	}
 
@@ -56,14 +60,17 @@ func (c *UserController) GetByID(ctx *gin.Context) {
 // @param id path string true "Идентиикатор пользователя"
 // @param event body user.UserUpdateInput false "Данные о пользователе"
 // @success 204 
-// @failure 400 {string} string "error"
-// @failure 409 {string} string "error"
-// @failure 500 {string} string "error"
+// @failure 400 {object} responses.ResponseFailed
+// @failure 401 {object} responses.ResponseFailed
+// @failure 403 {object} responses.ResponseFailed
+// @failure 404 {object} responses.ResponseFailed
+// @failure 409 {object} responses.ResponseFailed
+// @failure 500 {object} responses.ResponseFailed
 // @router /user/{id} [put]
 func (c *UserController) Update(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to update user", []string{err.Error()}))
 		return
 	}
 
@@ -73,9 +80,9 @@ func (c *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	err = c.Service.Update(id, &body)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	result := c.Service.Update(id, &body)
+	if result.IsFailed {
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to update user", result.Errors))
 		return
 	}
 
@@ -91,20 +98,23 @@ func (c *UserController) Update(ctx *gin.Context) {
 // @produce json
 // @param id path string true "Идентиикатор пользователя"
 // @success 204 
-// @failure 400 {string} string "error"
-// @failure 409 {string} string "error"
-// @failure 500 {string} string "error"
+// @failure 400 {object} responses.ResponseFailed
+// @failure 401 {object} responses.ResponseFailed
+// @failure 403 {object} responses.ResponseFailed
+// @failure 404 {object} responses.ResponseFailed
+// @failure 409 {object} responses.ResponseFailed
+// @failure 500 {object} responses.ResponseFailed
 // @router /user/{id} [delete]
-func (c *UserController) Remove(ctx *gin.Context) {
+func (c *UserController) Delete(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to delete user", []string{err.Error()}))
 		return
 	}
 
-	err = c.Service.Remove(id)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	result := c.Service.Delete(id)
+	if result.IsFailed {
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to delete user", result.Errors))
 		return
 	}
 

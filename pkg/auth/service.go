@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"errors"
 	"log"
 	"strings"
 	"time"
@@ -9,13 +8,14 @@ import (
 	"github.com/BigWaffleMonster/Eventure_backend/helpers"
 	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
 	"github.com/BigWaffleMonster/Eventure_backend/utils"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 )
 
 type AuthService interface {
-	Register(data RegisterInput) (string, error)
-	Login(data LoginInput) (map[string]string, error)
-	RefreshToken(data RefreshInput) (map[string]string, error)
+	Register(data RegisterInput) (results.Result)
+	Login(data LoginInput) (map[string]string, results.Result)
+	RefreshToken(data RefreshInput) (map[string]string, results.Result)
 }
 
 type authService struct {
@@ -30,23 +30,23 @@ func NewAuthService(repo user.UserRepository, config utils.ServerConfig) AuthSer
 	}
 }
 
-func (s *authService) Register(data RegisterInput) (string, error) {
+func (s *authService) Register(data RegisterInput) results.Result {
 	var userModel user.User
 
 	if !helpers.IsValidEmail(data.Email) {
-		return "", errors.New("email not valid")
+		return results.NewBadRequestError("email not valid")
 	}
 
 	existingUser, _ := s.Repo.GetByEmail(data.Email)
 	if existingUser != nil {
-		return "", errors.New("email already exists")
+		return results.NewConflictError("email already exists")
 	}
 
 	if data.Password != nil {
 		hashedPassword, err := helpers.HashPassword(*data.Password)
 		if err != nil {
 			log.Fatal(err)
-			return "", errors.New("Error with hashing password")
+			return results.NewInternalError("Error with hashing password")
 		}
 
 		userModel.Password = hashedPassword
@@ -57,79 +57,74 @@ func (s *authService) Register(data RegisterInput) (string, error) {
 	userModel.DateCreated = time.Now()
 	userModel.UserName = strings.Split(data.Email,`@`)[0]
 
-	err := s.Repo.Create(&userModel)
-	if err != nil {
-		return "", err
-	}
-
-	return "Successfully created!", nil
+	return s.Repo.Create(&userModel)
 }
 
-func (s *authService) Login(data LoginInput) (map[string]string, error) {
+func (s *authService) Login(data LoginInput) (map[string]string, results.Result) {
 	if !helpers.IsValidEmail(data.Email) {
-		return nil, errors.New("email not valid")
+		return nil, results.NewBadRequestError("email not valid")
 	}
 
 	existingUser, _ := s.Repo.GetByEmail(data.Email)
 	if existingUser == nil {
-		return nil, errors.New("user doesn`t exists")
+		return nil, results.NewNotFoundError("User")
 	}
 
 	if data.Password != nil {
 		passwordHashCheckResult := helpers.CheckPasswordHash(*data.Password, existingUser.Password)
 		if !passwordHashCheckResult {
-			return nil, errors.New("password don`t match")
+			return nil, results.NewUnauthorizedError("Password or login is incorrect")
 		}
 	} else {
-		//checkTempPassword
+		//TODO: checkTempPassword
 	}
 
-	accessToken, err := GenerateAccessToken(existingUser.Email, existingUser.ID, s.Config)
-	if err != nil {
-		return nil, errors.New("error Generating Token")
+	accessToken, result := GenerateAccessToken(existingUser.Email, existingUser.ID, s.Config)
+	if result.IsFailed {
+		return nil, result
 	}
 
-	refreshToken, err := GenerateRefreshToken(existingUser.Email, existingUser.ID, s.Config)
-	if err != nil {
-		return nil, errors.New("error Generating Token")
+	refreshToken, result := GenerateRefreshToken(existingUser.Email, existingUser.ID, s.Config)
+
+	if result.IsFailed {
+		return nil, result
 	}
 
-	err = s.Repo.SetRefreshToken(existingUser.ID, refreshToken)
-	if err != nil {
-		return nil, errors.New("can`t set refresh token")
+	result = s.Repo.SetRefreshToken(existingUser.ID, refreshToken)
+
+	if result.IsFailed {
+		return nil, result
 	}
 
 	return map[string]string{
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,
-	}, nil
+	}, results.NewResultOk()
 }
 
-func (s *authService) RefreshToken(data RefreshInput) (map[string]string, error) {
-	claims, err := ValidateRefreshToken(data.RefreshToken, s.Config)
-	if err != nil {
-		return nil, errors.New("invalid refresh token")
+func (s *authService) RefreshToken(data RefreshInput) (map[string]string, results.Result) {
+	claims, result := ValidateRefreshToken(data.RefreshToken, s.Config)
+	if result.IsFailed {
+		return nil, result
 	}
 
-	err = s.Repo.GetRefreshToken(data.RefreshToken)
-	if err != nil {
-		return nil, errors.New("refresh token doesn`t exists")
+	result = s.Repo.GetRefreshToken(data.RefreshToken)
+	if result.IsFailed {
+		return nil, result
 	}
 
-	// Generate a new access token
-	newAccessToken, err := GenerateAccessToken(claims.Email, claims.ID, s.Config)
-	if err != nil {
-		return nil, errors.New("error generating access token")
+	newAccessToken, result := GenerateAccessToken(claims.Email, claims.ID, s.Config)
+	if result.IsFailed {
+		return nil, result
 	}
 
-	// Optionally generate a new refresh token
-	newRefreshToken, err := GenerateRefreshToken(claims.Email, claims.ID, s.Config)
-	if err != nil {
-		return nil, errors.New("error generating refresh token")
+	newRefreshToken, result := GenerateRefreshToken(claims.Email, claims.ID, s.Config)
+	if result.IsFailed {
+		return nil, result
 	}
 
 	return map[string]string{
 		"accessToken":  newAccessToken,
 		"refreshToken": newRefreshToken,
-	}, nil
+	}, results.NewResultOk()
 }

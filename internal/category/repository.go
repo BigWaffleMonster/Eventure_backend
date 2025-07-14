@@ -1,12 +1,13 @@
 package category
 
 import (
+	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"gorm.io/gorm"
 )
 
 type CategoryRepository interface {
-	GetCollection() (*[]Category, error)
-	GetByID(id uint) (*Category, error)
+	GetCollection() (*[]Category, results.Result)
+	GetByID(id uint) (*Category, results.Result)
 }
 
 type categoryRepository struct {
@@ -17,22 +18,25 @@ func NewCategoryRepository(db *gorm.DB) CategoryRepository {
 	return &categoryRepository{DB: db}
 }
 
-func (r *categoryRepository) GetCollection() (*[]Category, error) {
+func (r *categoryRepository) GetCollection() (*[]Category, results.Result) {
 	var category []Category
 	result := r.DB.Find(&category)
 
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, results.NewInternalError(result.Error.Error())
 	}
 
-	return &category, nil
+	return &category, results.NewResultOk()
 }
 
-func (r *categoryRepository) GetByID(id uint) (*Category, error) {
+func (r *categoryRepository) GetByID(id uint) (*Category, results.Result) {
 	var category Category
+
 	result := r.DB.Where("id = ?", id).First(&category)
+
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, results.NewInternalError(result.Error.Error())
 	}
-	return &category, nil
+
+	return &category, results.NewResultOk()
 }

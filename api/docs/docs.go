@@ -35,28 +35,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView"
-                            }
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_category_CategoryView"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -88,25 +103,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_category_CategoryView"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -134,28 +167,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView"
-                            }
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_event_EventView"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -188,25 +236,46 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOkString"
+                        }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -234,28 +303,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView"
-                            }
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_event_EventView"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -292,25 +376,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_event_EventView"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -354,21 +456,39 @@ const docTemplate = `{
                         "description": "No Content"
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -404,21 +524,39 @@ const docTemplate = `{
                         "description": "No Content"
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -449,27 +587,45 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "created",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_string"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -497,28 +653,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView"
-                            }
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_participant_ParticipantView"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -551,25 +722,46 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOkString"
+                        }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -606,28 +798,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView"
-                            }
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_participant_ParticipantView"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -664,25 +871,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_participant_ParticipantView"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -726,21 +951,39 @@ const docTemplate = `{
                         "description": "No Content"
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -776,21 +1019,39 @@ const docTemplate = `{
                         "description": "No Content"
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -821,27 +1082,45 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "created",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_string"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -872,27 +1151,45 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "created",
+                        "description": "Created",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOkString"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -929,25 +1226,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_user.UserView"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_user_UserView"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -991,21 +1306,39 @@ const docTemplate = `{
                         "description": "No Content"
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -1041,21 +1374,39 @@ const docTemplate = `{
                         "description": "No Content"
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "409": {
-                        "description": "error",
+                        "description": "Conflict",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
                         }
                     }
                 }
@@ -1266,6 +1617,128 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_category_CategoryView": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_event_EventView": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_github_com_BigWaffleMonster_Eventure_backend_internal_participant_ParticipantView": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_string": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_category_CategoryView": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_event_EventView": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_event.EventView"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_participant_ParticipantView": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_participant.ParticipantView"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-github_com_BigWaffleMonster_Eventure_backend_internal_user_UserView": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_internal_user.UserView"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOkString": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }

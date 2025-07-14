@@ -1,23 +1,22 @@
 package event
 
 import (
-	"errors"
-
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 )
 
 type EventService interface{
-    Create(data *EventInput, currentUser *auth.CurrentUser) error
-	Update(id uuid.UUID, data *EventInput) error
-	Remove(id uuid.UUID) error
-	GetByID(id uuid.UUID) (*EventView, error)
-	GetCollection() (*[]EventView, error)
-	GetOwnedCollection(currentUser *auth.CurrentUser) (*[]EventView, error)
+    Create(data *EventInput, currentUser *auth.CurrentUser) results.Result
+	Update(id uuid.UUID, data *EventInput) results.Result
+	Delete(id uuid.UUID) results.Result
+	GetByID(id uuid.UUID) (*EventView, results.Result)
+	GetCollection() (*[]EventView, results.Result)
+	GetOwnedCollection(currentUser *auth.CurrentUser) (*[]EventView, results.Result)
 }
 
 type eventService struct {
@@ -32,10 +31,10 @@ func NewEventService(repository EventRepository, eventBus domain_events_abstract
 	}
 }
 
-func (s *eventService) Create(data *EventInput, currentUser *auth.CurrentUser) (error) {
+func (s *eventService) Create(data *EventInput, currentUser *auth.CurrentUser) results.Result {
 
 	if data.EndDate.Before(*data.StartDate) {
-		return errors.New("date errors")
+		return results.NewBadRequestError("End date is defore start date")
 	}
 
 	event := Event{
@@ -54,10 +53,11 @@ func (s *eventService) Create(data *EventInput, currentUser *auth.CurrentUser) (
 	return s.Repository.Create(&event)
 }
 
-func (s *eventService) Update(id uuid.UUID, data *EventInput) (error) {
-	event, err := s.Repository.GetByID(id)
-	if err != nil {
-		return err
+func (s *eventService) Update(id uuid.UUID, data *EventInput) results.Result {
+	event, result := s.Repository.GetByID(id)
+
+	if result.IsFailed {
+		return result
 	}
 
 	if data.Title != nil {
@@ -95,41 +95,41 @@ func (s *eventService) Update(id uuid.UUID, data *EventInput) (error) {
 	return s.Repository.Update(event)
 }
 
-func (s *eventService) Remove(id uuid.UUID) (error) {
-	domainEventData, err := domain_events.NewEventDeletedDomainEvent(id)
+func (s *eventService) Delete(id uuid.UUID) results.Result {
+	domainEventData, result := domain_events.NewEventDeletedDomainEvent(id)
 
-	if err != nil {
-		return err
+	if result.IsFailed {
+		return result
 	}
 
-	err = s.DomainEventBus.AddToStore(domainEventData)
+	result = s.DomainEventBus.AddToStore(domainEventData)
 
-	if err != nil {
-		return err
+	if result.IsFailed {
+		return result
 	}
 
-	return s.Repository.Remove(id)
+	return s.Repository.Delete(id)
 }
 
-func (s *eventService) GetByID(id uuid.UUID) (*EventView, error) {
-	event, err := s.Repository.GetByID(id)
-	if err != nil {
-		return nil, err
+func (s *eventService) GetByID(id uuid.UUID) (*EventView, results.Result) {
+	event, result := s.Repository.GetByID(id)
+	if result.IsFailed {
+		return nil, result
 	}
 
 	var eventView EventView
 
 	copier.Copy(&eventView, &event)
 
-	return &eventView, nil
+	return &eventView, results.NewResultOk()
 }
 
-func (s *eventService) GetCollection() (*[]EventView, error) {
+func (s *eventService) GetCollection() (*[]EventView, results.Result) {
 	var events *[]Event
 
-	events, err := s.Repository.GetCollection()
-	if err != nil {
-		return nil, err
+	events, result := s.Repository.GetCollection()
+	if result.IsFailed {
+		return nil, result
 	}
 
 	views := helpers.MapArray(events, func(event Event) EventView {
@@ -138,16 +138,15 @@ func (s *eventService) GetCollection() (*[]EventView, error) {
 		return eventView
 	})
 
-
-	return views, nil
+	return views, results.NewResultOk()
 }
 
-func (s *eventService) GetOwnedCollection(currentUser *auth.CurrentUser) (*[]EventView, error) {
+func (s *eventService) GetOwnedCollection(currentUser *auth.CurrentUser) (*[]EventView, results.Result) {
 	var events *[]Event
 
-	events, err := s.Repository.GetOwnedCollection(currentUser.ID)
-	if err != nil {
-		return nil, err
+	events, result := s.Repository.GetOwnedCollection(currentUser.ID)
+	if result.IsFailed {
+		return nil, result
 	}
 
 	views := helpers.MapArray(events, func(event Event) EventView {
@@ -156,6 +155,5 @@ func (s *eventService) GetOwnedCollection(currentUser *auth.CurrentUser) (*[]Eve
 		return eventView
 	})
 
-
-	return views, nil
+	return views, results.NewResultOk()
 }
