@@ -1,9 +1,8 @@
 package user
 
 import (
-	"github.com/BigWaffleMonster/Eventure_backend/helpers"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events/domain_events_definitions"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/helpers"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -16,21 +15,19 @@ type UserService interface {
 }
 
 type userService struct {
-	Repo UserRepository
-	DomainEventBus domain_events_abstractions.DomainEventBus
+	Uof UnitOfWork
 }
 
-func NewUserService(repo UserRepository, eventBus domain_events_abstractions.DomainEventBus) UserService {
+func NewUserService(uof UnitOfWork) UserService {
 	return &userService{
-		Repo: repo,
-		DomainEventBus: eventBus,
+		Uof: uof,
 	}
 }
 
 func (s *userService) GetByID(id uuid.UUID) (*UserView, results.Result) {
 	var userView UserView
 
-	data, result := s.Repo.GetByID(id)
+	data, result := s.Uof.Repository().GetByID(id)
 	if result.IsFailed {
 		return nil, result
 	}
@@ -41,7 +38,7 @@ func (s *userService) GetByID(id uuid.UUID) (*UserView, results.Result) {
 }
 
 func (s *userService) Update(id uuid.UUID, data *UserUpdateInput) results.Result {
-	user, result := s.Repo.GetByID(id)
+	user, result := s.Uof.Repository().GetByID(id)
 	if result.IsFailed {
 		return result
 	}
@@ -65,15 +62,15 @@ func (s *userService) Update(id uuid.UUID, data *UserUpdateInput) results.Result
 		user.Password = password
 	}
 
-	return s.Repo.Update(user)
+	return s.Uof.Repository().Update(user)
 }
 
 func (s *userService) Delete(id uuid.UUID) results.Result {
-	domainEventData, result := domain_events.NewUserDeletedDomainEvent(id)
+	domainEventData, result := domain_events_definitions.NewUserDeleted(id)
 
 	if result.IsFailed {
 		return result
 	}
 
-	return s.DomainEventBus.AddToStore(domainEventData)
+	return s.Uof.DomainEventStore().AddToStore(domainEventData)
 }

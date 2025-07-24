@@ -1,10 +1,12 @@
 package event
 
 import (
+	"fmt"
+
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events/domain_events_definitions"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/interfaces"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/helpers"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -20,14 +22,12 @@ type EventService interface{
 }
 
 type eventService struct {
-	Repository EventRepository
-	DomainEventBus domain_events_abstractions.DomainEventBus
+	UOF UnitOfWork
 }
 
-func NewEventService(repository EventRepository, eventBus domain_events_abstractions.DomainEventBus) EventService {
+func NewEventService(UOF UnitOfWork) EventService {
 	return &eventService{
-		Repository: repository,
-		DomainEventBus: eventBus,
+		UOF: UOF,
 	}
 }
 
@@ -50,11 +50,13 @@ func (s *eventService) Create(data *EventInput, currentUser *auth.CurrentUser) r
 		CategoryID: *data.CategoryID,
 	}
 	
-	return s.Repository.Create(&event)
+	return s.UOF.Repository().Create(&event)
 }
 
 func (s *eventService) Update(id uuid.UUID, data *EventInput) results.Result {
-	event, result := s.Repository.GetByID(id)
+	repository := s.UOF.Repository()
+
+	event, result := repository.GetByID(id)
 
 	if result.IsFailed {
 		return result
@@ -92,27 +94,31 @@ func (s *eventService) Update(id uuid.UUID, data *EventInput) results.Result {
 		event.MaxQtyParticipants = *data.MaxQtyParticipants
 	}
 
-	return s.Repository.Update(event)
+	return repository.Update(event)
 }
 
 func (s *eventService) Delete(id uuid.UUID) results.Result {
-	domainEventData, result := domain_events.NewEventDeletedDomainEvent(id)
+	return s.UOF.RunInTx(
+		NewEventRepository,
+		func(repo EventRepository, store interfaces.DomainEventStore) results.Result{
+		domainEventData, result := domain_events_definitions.NewEventDeleted(id)
 
-	if result.IsFailed {
-		return result
-	}
+		if result.IsFailed {
+			return result
+		}
 
-	result = s.DomainEventBus.AddToStore(domainEventData)
+		result = store.AddToStore(domainEventData)
 
-	if result.IsFailed {
-		return result
-	}
-
-	return s.Repository.Delete(id)
+		if result.IsFailed {
+			return result
+		}
+		
+		return repo.Delete(id)
+	})
 }
 
 func (s *eventService) GetByID(id uuid.UUID) (*EventView, results.Result) {
-	event, result := s.Repository.GetByID(id)
+	event, result := s.UOF.Repository().GetByID(id)
 	if result.IsFailed {
 		return nil, result
 	}
@@ -127,7 +133,7 @@ func (s *eventService) GetByID(id uuid.UUID) (*EventView, results.Result) {
 func (s *eventService) GetCollection() (*[]EventView, results.Result) {
 	var events *[]Event
 
-	events, result := s.Repository.GetCollection()
+	events, result := s.UOF.Repository().GetCollection()
 	if result.IsFailed {
 		return nil, result
 	}
@@ -144,7 +150,9 @@ func (s *eventService) GetCollection() (*[]EventView, results.Result) {
 func (s *eventService) GetOwnedCollection(currentUser *auth.CurrentUser) (*[]EventView, results.Result) {
 	var events *[]Event
 
-	events, result := s.Repository.GetOwnedCollection(currentUser.ID)
+	fmt.Println(currentUser.ID)
+
+	events, result := s.UOF.Repository().GetCollectionByExpression("owner_id = ?", currentUser.ID)
 	if result.IsFailed {
 		return nil, result
 	}

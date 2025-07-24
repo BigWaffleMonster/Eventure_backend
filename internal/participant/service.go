@@ -2,9 +2,8 @@ package participant
 
 import (
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events/domain_events_definitions"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/helpers"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -20,32 +19,37 @@ type ParticipantService interface{
 }
 
 type participantService struct {
-	DomainEventBus domain_events_abstractions.DomainEventBus
-	Repository ParticipantRepository
+	Uof UnitOfWork
 }
 
-func NewParticipantService(repository ParticipantRepository, eventBus domain_events_abstractions.DomainEventBus) ParticipantService {
+func NewParticipantService(uof UnitOfWork) ParticipantService {
 	return &participantService{
-		Repository: repository,
-		DomainEventBus: eventBus,
+		Uof: uof,
 	}
 }
 
 func (s *participantService) Create(data *ParticipantInput, currentUser *auth.CurrentUser) results.Result {
+	var participants *[]Participant
 
-	domainEventData, result := domain_events.NewParticipantCreatedDomainEvent(*data.EventID, currentUser.ID, *data.Status, "")
+	participants, result := s.Uof.Repository().GetCollectionByExpression("event_id = ?", data.EventID)
 
 	if result.IsFailed {
 		return result
 	}
 
-	return s.DomainEventBus.AddToStore(domainEventData)
+	domainEventData, result := domain_events_definitions.NewUserWantsToVisitEvent(*data.EventID, currentUser.ID, len(*participants), *data.Status)
+
+	if result.IsFailed {
+		return result
+	}
+
+	return s.Uof.DomainEventStore().AddToStore(domainEventData)
 }
 
 func (s *participantService) ChangeState(id uuid.UUID, state *string, currentUser auth.CurrentUser) results.Result {
 	var participant *Participant
 
-	participant, result := s.Repository.GetByID(id)
+	participant, result := s.Uof.Repository().GetByID(id)
 	if result.IsFailed {
 		return result
 	}
@@ -58,11 +62,11 @@ func (s *participantService) ChangeState(id uuid.UUID, state *string, currentUse
 		participant.Status = *state
 	}
 
-	return s.Repository.Update(participant)
+	return s.Uof.Repository().Update(participant)
 }
 
 func (s *participantService) Delete(id uuid.UUID, currentUser auth.CurrentUser) results.Result {
-	participant, result := s.Repository.GetByID(id)
+	participant, result := s.Uof.Repository().GetByID(id)
 	if result.IsFailed {
 		return result
 	}
@@ -71,11 +75,11 @@ func (s *participantService) Delete(id uuid.UUID, currentUser auth.CurrentUser) 
 		return results.NewForbiddenError()
 	}
 
-	return s.Repository.Delete(id)
+	return s.Uof.Repository().Delete(id)
 }
 
 func (s *participantService) GetByID(id uuid.UUID, currentUser auth.CurrentUser) (*ParticipantView, results.Result) {
-	participant, result := s.Repository.GetByID(id)
+	participant, result := s.Uof.Repository().GetByID(id)
 	if result.IsFailed {
 		return nil, result
 	}
@@ -94,7 +98,7 @@ func (s *participantService) GetByID(id uuid.UUID, currentUser auth.CurrentUser)
 func (s *participantService) GetCollection(eventID uuid.UUID) (*[]ParticipantView, results.Result) {
 	var participants *[]Participant
 
-	participants, result := s.Repository.GetCollection(eventID)
+	participants, result := s.Uof.Repository().GetCollectionByExpression("event_id = ?", eventID)
 	if result.IsFailed {
 		return nil, result
 	}
@@ -110,8 +114,8 @@ func (s *participantService) GetCollection(eventID uuid.UUID) (*[]ParticipantVie
 
 func (s *participantService) GetOwnedCollection(currentUser *auth.CurrentUser) (*[]ParticipantView, results.Result) {
 	var participants *[]Participant
-
-	participants, result := s.Repository.GetOwnedCollection(currentUser.ID)
+	
+	participants, result := s.Uof.Repository().GetCollectionByExpression("user_id=?", currentUser.ID)
 	if result.IsFailed {
 		return nil, result
 	}

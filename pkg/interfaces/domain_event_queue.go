@@ -1,4 +1,4 @@
-package domain_events_abstractions
+package interfaces
 
 type DomainEventQueue interface{
 	StartQueue()
