@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/BigWaffleMonster/Eventure_backend/utils"
@@ -27,13 +26,10 @@ func AuthMiddleware(config utils.ServerConfig) gin.HandlerFunc {
 			return
 		}
 
-		currentUser := &auth.CurrentUser{}
-		token, err := jwt.ParseWithClaims(tokenString, currentUser, func(token *jwt.Token) (interface{}, error) {
-			return []byte(config.JWT_SECRET), nil
-		})
+		currentUser, result := auth.ValidateAccessToken(tokenString, config)
 
-		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token"})
+		if result.IsFailed {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid login or password"})
 			c.Abort()
 			return
 		}

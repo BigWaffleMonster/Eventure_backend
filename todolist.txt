@@ -9,3 +9,6 @@
 9 Добавить проверки на дубликаты
 создание участника, соpдание события
 уникальность почты для пользаков
+
+
+https://github.com/hhuseyinpay/go-generic-repository-pattern/blob/main/repository/user.go

@@ -2,11 +2,11 @@ package v1
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/category"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/responses"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type CategoryController struct {
@@ -34,11 +34,11 @@ func NewCategoryController(service category.CategoryService) *CategoryController
 func (c *CategoryController) GetCollection(ctx *gin.Context) {
 	resp, result := c.Service.GetCollection()
 	if result.IsFailed {
-		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get collection", result.Errors))
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get categories", result.Errors))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, responses.NewResponseOk(&resp, "Get collection success"))
+	ctx.JSON(http.StatusOK, responses.NewResponseOk(&resp, "Get categories success"))
 }
 
 // @summary Получение категории
@@ -57,21 +57,17 @@ func (c *CategoryController) GetCollection(ctx *gin.Context) {
 // @failure 500 {object} responses.ResponseFailed
 // @router /category/{id} [get]
 func (c *CategoryController) GetByID(ctx *gin.Context) {
-	str_id := ctx.Query("id")
-
-	u64, err := strconv.ParseUint(str_id, 10, 32)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to get user", []string{err.Error()}))
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil{
+		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to get category", []string{err.Error()}))
 		return
 	}
-
-	id := uint(u64)
 
 	resp, result := c.Service.GetByID(id)
 	if result.IsFailed {
-		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get user", result.Errors))
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get category", result.Errors))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, responses.NewResponseOk(&resp, "Get user success"))
+	ctx.JSON(http.StatusOK, responses.NewResponseOk(&resp, "Get category success"))
 }

@@ -3,16 +3,17 @@ package v1
 import (
 	"net/http"
 
+	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/responses"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthController struct {
-	Service auth.AuthService
+	Service user.AuthService
 }
 
-func NewAuthController(service auth.AuthService) *AuthController {
+func NewAuthController(service user.AuthService) *AuthController {
 	return &AuthController{Service: service}
 }
 

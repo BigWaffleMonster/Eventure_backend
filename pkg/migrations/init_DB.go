@@ -9,7 +9,7 @@ import (
 	"github.com/BigWaffleMonster/Eventure_backend/internal/event"
 	"github.com/BigWaffleMonster/Eventure_backend/internal/participant"
 	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events/domain_events_base"
 	"github.com/BigWaffleMonster/Eventure_backend/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -39,7 +39,7 @@ func InitDB(config utils.ServerConfig) (*gorm.DB, error) {
 			&category.Category{}, 
 			&participant.Participant{}, 
 			&user.UserRefreshToken{},
-			&domain_events_abstractions.DomainEventData{})
+			&domain_events_base.DomainEventData{})
 
 		if err == nil {
 			log.Println("Successfully migrate!")

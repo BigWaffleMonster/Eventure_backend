@@ -1,18 +1,18 @@
-package domain_events_queue
+package domain_events
 
 import (
 	"fmt"
 	"time"
 
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/interfaces"
 )
 
 type domainEventQueue struct{
-	domainEventBus domain_events_abstractions.DomainEventBus
+	domainEventBus interfaces.DomainEventBus
 	CancelationRequested bool
 }
 
-func NewDomainEventQueue(domainEventBus domain_events_abstractions.DomainEventBus) domain_events_abstractions.DomainEventQueue{
+func NewDomainEventQueue(domainEventBus interfaces.DomainEventBus) interfaces.DomainEventQueue{
 	return &domainEventQueue{
 		domainEventBus: domainEventBus,
 		CancelationRequested: false,
@@ -27,7 +27,7 @@ func (p *domainEventQueue) startQueue() {
 	p.CancelationRequested = false
 
 	for {
-		p.domainEventBus.PublishAll()
+		p.domainEventBus.Publish()
 
 		if (p.CancelationRequested){
 			break

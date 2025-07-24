@@ -30,7 +30,7 @@ func BuildProtectedRoutes(router *gin.Engine, p NewServerParams){
 				participants.DELETE("/:id", p.ParticipantController.Delete)
 				participants.GET("/:id", p.ParticipantController.GetByID)
 				participants.GET("/event/:eventId", p.ParticipantController.GetCollection)
-				participants.GET("", p.EventController.GetOwnedCollection)
+				participants.GET("", p.ParticipantController.GetOwnedCollection)
 			}
 
 		}
