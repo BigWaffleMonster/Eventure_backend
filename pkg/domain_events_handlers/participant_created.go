@@ -8,6 +8,7 @@ import (
 	"github.com/BigWaffleMonster/Eventure_backend/internal/participant"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/repository"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 )
@@ -15,13 +16,13 @@ import (
 const participantCreatedDomainType = "ParticipantCreatedDomainEvent"
 
 type participantCreatedDomainEventHandler struct{
-	EventRepo event.EventRepository
-	ParticipantRepo participant.ParticipantRepository
+	EventRepo repository.Repository[event.Event]
+	ParticipantRepo repository.Repository[participant.Participant]
 }
 
 func NewParticipantCreatedDomainEventHandler(
-	eRepo event.EventRepository, 
-	pRepo participant.ParticipantRepository) domain_events_abstractions.DomainEventHandler{
+	eRepo repository.Repository[event.Event], 
+	pRepo repository.Repository[participant.Participant]) domain_events_abstractions.DomainEventHandler{
 
 	return &participantCreatedDomainEventHandler{
 		EventRepo: eRepo,
@@ -50,7 +51,7 @@ func (h * participantCreatedDomainEventHandler) Handle(domainEventData *domain_e
 
 	var participants *[]participant.Participant
 
-	participants, result = h.ParticipantRepo.GetCollection(domainEvent.EventID)
+	participants, result = h.ParticipantRepo.GetCollectionByExpression("event_id = ?", domainEvent.EventID)
 
 	if result.IsFailed {
 		return result

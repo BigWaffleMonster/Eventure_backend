@@ -12,7 +12,7 @@ import (
 func ValidateAccessToken(tokenString string, config utils.ServerConfig) (*CurrentUser, results.Result) {
 	currentUser := &CurrentUser{}
 	token, err := jwt.ParseWithClaims(tokenString, currentUser, func(token *jwt.Token) (interface{}, error) {
-		return config.JWT_SECRET, nil
+		return []byte(config.JWT_SECRET), nil
 	})
 
 	if err != nil || !token.Valid {
@@ -26,7 +26,7 @@ func ValidateAccessToken(tokenString string, config utils.ServerConfig) (*Curren
 func ValidateRefreshToken(tokenString string, config utils.ServerConfig) (*CurrentUser, results.Result) {
 	currentUser := &CurrentUser{}
 	token, err := jwt.ParseWithClaims(tokenString, currentUser, func(token *jwt.Token) (interface{}, error) {
-		return config.JWT_SECRET_REFRESH, nil
+		return []byte(config.JWT_SECRET_REFRESH), nil
 	})
 
 	if err != nil || !token.Valid {

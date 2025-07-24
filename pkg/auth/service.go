@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -70,6 +71,13 @@ func (s *authService) Login(data LoginInput) (map[string]string, results.Result)
 		return nil, results.NewNotFoundError("User")
 	}
 
+	existingUser, err := s.Repo.GetByExpression("email = ?" ,data.Email)
+	fmt.Println(err)
+	if existingUser == nil {
+		return nil, results.NewNotFoundError("User")
+	}
+
+
 	if data.Password != nil {
 		passwordHashCheckResult := helpers.CheckPasswordHash(*data.Password, existingUser.Password)
 		if !passwordHashCheckResult {
@@ -84,21 +92,14 @@ func (s *authService) Login(data LoginInput) (map[string]string, results.Result)
 		return nil, result
 	}
 
-	refreshToken, result := GenerateRefreshToken(existingUser.Email, existingUser.ID, s.Config)
-
-	if result.IsFailed {
-		return nil, result
-	}
-
-	result = s.Repo.SetRefreshToken(existingUser.ID, refreshToken)
-
+	refreshToken, result := s.validateAndGenerateNewRefreshToken(existingUser)
 	if result.IsFailed {
 		return nil, result
 	}
 
 	return map[string]string{
 		"accessToken":  accessToken,
-		"refreshToken": refreshToken,
+		"refreshToken": *refreshToken,
 	}, results.NewResultOk()
 }
 
@@ -108,23 +109,56 @@ func (s *authService) RefreshToken(data RefreshInput) (map[string]string, result
 		return nil, result
 	}
 
-	result = s.Repo.GetRefreshToken(data.RefreshToken)
-	if result.IsFailed {
-		return nil, result
-	}
-
 	newAccessToken, result := GenerateAccessToken(claims.Email, claims.ID, s.Config)
 	if result.IsFailed {
 		return nil, result
 	}
 
-	newRefreshToken, result := GenerateRefreshToken(claims.Email, claims.ID, s.Config)
+	existingUser, _ := s.Repo.GetByID(claims.ID)
+	if existingUser == nil {
+		return nil, results.NewNotFoundError("User")
+	}
+
+	newRefreshToken, result := s.validateAndGenerateNewRefreshToken(existingUser)
 	if result.IsFailed {
 		return nil, result
 	}
 
 	return map[string]string{
 		"accessToken":  newAccessToken,
-		"refreshToken": newRefreshToken,
+		"refreshToken": *newRefreshToken,
 	}, results.NewResultOk()
+}
+
+func (s *authService) validateAndGenerateNewRefreshToken(existingUser *user.User) (*string, results.Result) {
+	refreshToken, result := s.Repo.GetRefreshToken(existingUser.ID)
+	if result.IsFailed {
+		return nil, result
+	}
+
+	if refreshToken == nil {
+		return s.generateNewRefreshToken(existingUser)
+	}
+
+	_, result = ValidateRefreshToken(refreshToken.RefsreshToken, s.Config)
+	if result.IsFailed {
+		return s.generateNewRefreshToken(existingUser)
+	}
+
+	return &refreshToken.RefsreshToken, results.NewResultOk()
+}
+
+func (s *authService) generateNewRefreshToken(existingUser *user.User) (*string, results.Result) {
+	newRefreshToken, result := GenerateRefreshToken(existingUser.Email, existingUser.ID, s.Config)
+	if result.IsFailed {
+		return nil, result
+	}
+
+	result = s.Repo.SetRefreshToken(existingUser.ID, newRefreshToken)
+
+	if result.IsFailed {
+		return nil, result
+	}
+
+	return &newRefreshToken, results.NewResultOk()
 }

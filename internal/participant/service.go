@@ -5,6 +5,7 @@ import (
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/repository"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -21,10 +22,10 @@ type ParticipantService interface{
 
 type participantService struct {
 	DomainEventBus domain_events_abstractions.DomainEventBus
-	Repository ParticipantRepository
+	Repository repository.Repository[Participant]
 }
 
-func NewParticipantService(repository ParticipantRepository, eventBus domain_events_abstractions.DomainEventBus) ParticipantService {
+func NewParticipantService(repository repository.Repository[Participant], eventBus domain_events_abstractions.DomainEventBus) ParticipantService {
 	return &participantService{
 		Repository: repository,
 		DomainEventBus: eventBus,
@@ -94,7 +95,7 @@ func (s *participantService) GetByID(id uuid.UUID, currentUser auth.CurrentUser)
 func (s *participantService) GetCollection(eventID uuid.UUID) (*[]ParticipantView, results.Result) {
 	var participants *[]Participant
 
-	participants, result := s.Repository.GetCollection(eventID)
+	participants, result := s.Repository.GetCollectionByExpression("event_id = ?", eventID)
 	if result.IsFailed {
 		return nil, result
 	}
@@ -110,8 +111,8 @@ func (s *participantService) GetCollection(eventID uuid.UUID) (*[]ParticipantVie
 
 func (s *participantService) GetOwnedCollection(currentUser *auth.CurrentUser) (*[]ParticipantView, results.Result) {
 	var participants *[]Participant
-
-	participants, result := s.Repository.GetOwnedCollection(currentUser.ID)
+	
+	participants, result := s.Repository.GetCollectionByExpression("user_id=?", currentUser.ID)
 	if result.IsFailed {
 		return nil, result
 	}

@@ -7,19 +7,20 @@ import (
 	"github.com/BigWaffleMonster/Eventure_backend/internal/participant"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/repository"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 )
 
 const userDeletedDomainType = "UserDeletedDomainEvent"
 
 type userDeletedDomainEventHandler struct{
-	EventRepo event.EventRepository
-	ParticipantRepo participant.ParticipantRepository
+	EventRepo repository.Repository[event.Event]
+	ParticipantRepo repository.Repository[participant.Participant]
 }
 
 func NewUserDeletedDomainEventHandler(
-	eRepo event.EventRepository, 
-	pRepo participant.ParticipantRepository) domain_events_abstractions.DomainEventHandler{
+	eRepo repository.Repository[event.Event], 
+	pRepo repository.Repository[participant.Participant]) domain_events_abstractions.DomainEventHandler{
 	return &userDeletedDomainEventHandler{
 		EventRepo: eRepo,
 		ParticipantRepo: pRepo,
@@ -40,7 +41,7 @@ func (h * userDeletedDomainEventHandler) Handle(domainEventData *domain_events_a
 
 	var events *[]event.Event
 
-	events, result := h.EventRepo.GetOwnedCollection(domainEvent.UserID)
+	events, result := h.EventRepo.GetCollectionByExpression("owner_id = ?", domainEvent.UserID)
 	if result.IsFailed {
 		return result
 	}
@@ -54,7 +55,7 @@ func (h * userDeletedDomainEventHandler) Handle(domainEventData *domain_events_a
 
 		var participants *[]participant.Participant
 
-		participants, result = h.ParticipantRepo.GetCollection(e.ID)
+		participants, result = h.ParticipantRepo.GetCollectionByExpression("event_id = ?", e.ID)
 		if result.IsFailed {
 			return result
 		}

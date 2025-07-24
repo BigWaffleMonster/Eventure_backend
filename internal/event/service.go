@@ -1,10 +1,13 @@
 package event
 
 import (
+	"fmt"
+
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events_abstractions"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/pkg/repository"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -20,11 +23,11 @@ type EventService interface{
 }
 
 type eventService struct {
-	Repository EventRepository
+	Repository repository.Repository[Event]
 	DomainEventBus domain_events_abstractions.DomainEventBus
 }
 
-func NewEventService(repository EventRepository, eventBus domain_events_abstractions.DomainEventBus) EventService {
+func NewEventService(repository repository.Repository[Event], eventBus domain_events_abstractions.DomainEventBus) EventService {
 	return &eventService{
 		Repository: repository,
 		DomainEventBus: eventBus,
@@ -144,7 +147,9 @@ func (s *eventService) GetCollection() (*[]EventView, results.Result) {
 func (s *eventService) GetOwnedCollection(currentUser *auth.CurrentUser) (*[]EventView, results.Result) {
 	var events *[]Event
 
-	events, result := s.Repository.GetOwnedCollection(currentUser.ID)
+	fmt.Println(currentUser.ID)
+
+	events, result := s.Repository.GetCollectionByExpression("owner_id = ?", currentUser.ID)
 	if result.IsFailed {
 		return nil, result
 	}
