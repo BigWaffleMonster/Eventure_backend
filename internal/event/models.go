@@ -8,17 +8,17 @@ import (
 
 type Event struct {
 	ID                   uuid.UUID `gorm:"primaryKey;type:uuid"`
-	OwnerID              uuid.UUID `grom:"type:uuid"`
+	OwnerID              uuid.UUID `gorm:"type:uuid"`
 	Title                string    `gorm:"not null"`
 	Description          string    `gorm:"not null"`
 	MaxQtyParticipants   int
 	Location             string
-	Private              bool `gorm:"default:false"`
+	Private              bool      `gorm:"default:false"`
 	StartDate            time.Time
 	EndDate              time.Time
 	DateCreated          time.Time
 	DateUpdated          time.Time `gorm:"autoUpdateTime"`
-	CategoryID uuid.UUID         `gorm:"type:uuid"`
+	CategoryID           uuid.UUID `gorm:"type:uuid"`
 }
 
 // @description Событие

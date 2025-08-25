@@ -8,8 +8,8 @@ import (
 
 type User struct {
 	ID               uuid.UUID `gorm:"primaryKey;type:uuid"`
-	UserName         string    `gorm:"unique"`
-	Email            string    `gorm:"unique;not null"`
+	UserName         string    `gorm:"index:unique"`
+	Email            string    `gorm:"index:unique;not null"`
 	Password         string
 	DateCreated      time.Time
 	DateUpdated      time.Time `gorm:"autoUpdateTime"`
@@ -18,7 +18,7 @@ type User struct {
 
 type UserRefreshToken struct {
 	UserID        uuid.UUID `gorm:"type:uuid"`
-	RefsreshToken string    `grom:"not null"`
+	RefreshToken  string    `gorm:"not null"`
 }
 
 type UserView struct {

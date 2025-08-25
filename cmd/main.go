@@ -7,6 +7,7 @@ import (
 	"github.com/BigWaffleMonster/Eventure_backend/internal/event"
 	"github.com/BigWaffleMonster/Eventure_backend/internal/participant"
 	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
+	"github.com/BigWaffleMonster/Eventure_backend/migrations"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg"
 	"github.com/BigWaffleMonster/Eventure_backend/utils"
 	"go.uber.org/fx"
@@ -33,6 +34,7 @@ func main() {
 		category.AddDI(),
 		utils.AddDI(),
 		pkg.AddDI(),
+		fx.Provide(migrations.InitDB),
 		fx.Provide(v1.NewAuthController),
 		fx.Provide(v1.NewEventController),
 		fx.Provide(v1.NewCategoryController),

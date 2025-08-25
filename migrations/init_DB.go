@@ -5,12 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/BigWaffleMonster/Eventure_backend/internal/category"
-	"github.com/BigWaffleMonster/Eventure_backend/internal/event"
-	"github.com/BigWaffleMonster/Eventure_backend/internal/participant"
-	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events/domain_events_base"
 	"github.com/BigWaffleMonster/Eventure_backend/utils"
+	"github.com/go-gormigrate/gormigrate/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -33,13 +29,8 @@ func InitDB(config utils.ServerConfig) (*gorm.DB, error) {
 			log.Println("Successfully connected to the database!")
 		}
 
-		db.AutoMigrate(
-			&user.User{}, 
-			&event.Event{}, 
-			&category.Category{}, 
-			&participant.Participant{}, 
-			&user.UserRefreshToken{},
-			&domain_events_base.DomainEventData{})
+		m := gormigrate.New(db, gormigrate.DefaultOptions, GetAllMigrations())
+		err = m.Migrate()
 
 		if err == nil {
 			log.Println("Successfully migrate!")
@@ -53,4 +44,11 @@ func InitDB(config utils.ServerConfig) (*gorm.DB, error) {
 
 	log.Fatalf("Failed to connect to the database after multiple retries.")
 	return nil, fmt.Errorf("failed to connect to the database after multiple retries")
+}
+
+func GetAllMigrations() []*gormigrate.Migration {
+	return []*gormigrate.Migration{
+		M250820252255_Initial(),
+		// Добавляй сюда новые миграции
+	}
 }
