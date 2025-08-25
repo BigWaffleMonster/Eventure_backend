@@ -139,12 +139,12 @@ func (s *authService) validateAndGenerateNewRefreshToken(existingUser *User) (*s
 		return s.generateNewRefreshToken(existingUser)
 	}
 
-	_, result = auth.ValidateRefreshToken(refreshToken.RefsreshToken, s.Config)
+	_, result = auth.ValidateRefreshToken(refreshToken.RefreshToken, s.Config)
 	if result.IsFailed {
 		return s.generateNewRefreshToken(existingUser)
 	}
 
-	return &refreshToken.RefsreshToken, results.NewResultOk()
+	return &refreshToken.RefreshToken, results.NewResultOk()
 }
 
 func (s *authService) generateNewRefreshToken(existingUser *User) (*string, results.Result) {

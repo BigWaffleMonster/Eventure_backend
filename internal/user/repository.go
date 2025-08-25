@@ -56,7 +56,7 @@ func (r *userRepository) GetRefreshToken(userID uuid.UUID) (*UserRefreshToken, r
 func (r *userRepository) SetRefreshToken(userID uuid.UUID, token string) results.Result {
 	data := UserRefreshToken{
 		UserID:        userID,
-		RefsreshToken: token,
+		RefreshToken: token,
 	}
 
 	err := r.DB.Create(data).Error
