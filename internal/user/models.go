@@ -16,9 +16,17 @@ type User struct {
 	IsEmailConfirmed bool      `gorm:"default:false"`
 }
 
-type UserRefreshToken struct {
-	UserID        uuid.UUID `gorm:"type:uuid"`
-	RefreshToken  string    `gorm:"not null"`
+type UserSession struct {
+    ID            uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+    UserID        uuid.UUID `gorm:"type:uuid;not null;index"`
+    UserAgent     string    `gorm:"type:varchar(255);not null"`
+    IPAddress     string    `gorm:"type:varchar(45);not null"` // IPv6 может быть до 45 символов
+    Fingerprint   string    `gorm:"type:varchar(255);not null"`
+    ExpiresAt     time.Time `gorm:"not null"`
+    CreatedAt     time.Time `gorm:"default:CURRENT_TIMESTAMP"`
+    
+    // Опционально: связь с пользователем
+    User User `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:CASCADE"`
 }
 
 type UserView struct {

@@ -13,6 +13,12 @@ type CurrentUser struct {
 	jwt.RegisteredClaims
 }
 
+type RefreshToken struct {
+	SessionID uuid.UUID
+	ID         uuid.UUID
+	jwt.RegisteredClaims
+}
+
 type RegisterInput struct {
 	Email    string  `json:"email"`
 	Password *string `json:"password"`

@@ -578,10 +578,79 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Данные логина",
-                        "name": "register",
+                        "name": "login",
                         "in": "body",
                         "schema": {
                             "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_pkg_auth.LoginInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "description": "Завершить сессию",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Завершить сессию",
+                "parameters": [
+                    {
+                        "description": "Завершить сессию",
+                        "name": "logout",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_pkg_auth.RefreshInput"
                         }
                     }
                 ],
@@ -1073,7 +1142,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Обновить токен",
-                        "name": "register",
+                        "name": "refresh",
                         "in": "body",
                         "schema": {
                             "$ref": "#/definitions/github_com_BigWaffleMonster_Eventure_backend_pkg_auth.RefreshInput"
@@ -1418,7 +1487,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"

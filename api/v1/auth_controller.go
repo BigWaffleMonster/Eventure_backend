@@ -5,6 +5,7 @@ import (
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/requests"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/responses"
 	"github.com/gin-gonic/gin"
 )
@@ -46,7 +47,7 @@ func (c *AuthController) Register(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, responses.NewResponseOkString("Regictered success"))
+	ctx.JSON(http.StatusCreated, responses.NewResponseOkString("Registered success"))
 }
 
 // @summary Войти в систему
@@ -55,7 +56,7 @@ func (c *AuthController) Register(ctx *gin.Context) {
 // @tags auth
 // @accept json
 // @produce json
-// @param register body auth.LoginInput false "Данные логина"
+// @param login body auth.LoginInput false "Данные логина"
 // @success 200 {object} responses.ResponseOk[[]string]
 // @failure 400 {object} responses.ResponseFailed
 // @failure 401 {object} responses.ResponseFailed
@@ -72,7 +73,9 @@ func (c *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	tokens, result := c.Service.Login(body)
+	requestInfo := ctx.MustGet("request_info").(*requests.RequestInfo)
+
+	tokens, result := c.Service.Login(body, *requestInfo)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to login", result.Errors))
 		return
@@ -87,7 +90,7 @@ func (c *AuthController) Login(ctx *gin.Context) {
 // @tags auth
 // @accept json
 // @produce json
-// @param register body auth.RefreshInput false "Обновить токен"
+// @param refresh body auth.RefreshInput false "Обновить токен"
 // @success 200 {object} responses.ResponseOk[[]string]
 // @failure 400 {object} responses.ResponseFailed
 // @failure 401 {object} responses.ResponseFailed
@@ -104,11 +107,49 @@ func (c *AuthController) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	tokens, result := c.Service.RefreshToken(refreshInput)
+	//TODO: пройтись и убрать все методы которые могут вызвать панику, а то у нас приложение падать будет. ПО идее
+	requestInfo := ctx.MustGet("request_info").(*requests.RequestInfo)
+
+	tokens, result := c.Service.RefreshToken(refreshInput, *requestInfo)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to refresh token", result.Errors))
 		return
 	}
 
 	ctx.JSON(http.StatusOK, responses.NewResponseOk(&tokens, "Refresh token success"))
+}
+
+// @summary Завершить сессию
+// @schemes
+// @description Завершить сессию
+// @tags auth
+// @accept json
+// @produce json
+// @param logout body auth.RefreshInput false "Завершить сессию"
+// @success 200 {object} responses.ResponseOk[[]string]
+// @failure 400 {object} responses.ResponseFailed
+// @failure 401 {object} responses.ResponseFailed
+// @failure 403 {object} responses.ResponseFailed
+// @failure 404 {object} responses.ResponseFailed
+// @failure 409 {object} responses.ResponseFailed
+// @failure 500 {object} responses.ResponseFailed
+// @router /logout [post]
+func (c *AuthController) Logout(ctx *gin.Context) {
+	var refreshInput auth.RefreshInput
+
+	if err := ctx.ShouldBindJSON(&refreshInput); err != nil {
+		ctx.JSON(http.StatusBadRequest, responses.NewResponseFailed("Failed to refresh token", []string{err.Error()}))
+		return
+	}
+
+	//TODO: пройтись и убрать все методы которые могут вызвать панику, а то у нас приложение падать будет. ПО идее
+	requestInfo := ctx.MustGet("request_info").(*requests.RequestInfo)
+
+	result := c.Service.Logout(refreshInput, *requestInfo)
+	if result.IsFailed {
+		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to refresh token", result.Errors))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, responses.NewResponseOkString("Logged out"))
 }

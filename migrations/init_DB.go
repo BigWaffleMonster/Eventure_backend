@@ -12,11 +12,10 @@ import (
 )
 
 func InitDB(config utils.ServerConfig) (*gorm.DB, error) {
-	retries := 5 // Maximum number of retries
+	retries := 5
 	delay := 5 * time.Second
 
 	for retries > 0 {
-		// Build the DSN (Data Source Name) from environment variables
 		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
 			config.DB_HOST,
 			config.DB_USER,
@@ -49,6 +48,9 @@ func InitDB(config utils.ServerConfig) (*gorm.DB, error) {
 func GetAllMigrations() []*gormigrate.Migration {
 	return []*gormigrate.Migration{
 		M250820252255_Initial(),
+		M250820252258_AddDomainEvents(),
+		M030920252053_UpdateRefreshToken(),
+		M030920252053_RemoveRefreshTokenFromSession(),
 		// Добавляй сюда новые миграции
 	}
 }
