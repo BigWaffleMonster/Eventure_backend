@@ -22,9 +22,8 @@ func ValidateAccessToken(tokenString string, config utils.ServerConfig) (*Curren
 	return currentUser, results.NewResultOk()
 }
 
-//TODO: ValidateRefreshToken validates the refresh token
-func ValidateRefreshToken(tokenString string, config utils.ServerConfig) (*CurrentUser, results.Result) {
-	currentUser := &CurrentUser{}
+func ValidateRefreshToken(tokenString string, config utils.ServerConfig) (*RefreshToken, results.Result) {
+	currentUser := &RefreshToken{}
 	token, err := jwt.ParseWithClaims(tokenString, currentUser, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.JWT_SECRET_REFRESH), nil
 	})
@@ -57,10 +56,10 @@ func GenerateAccessToken(email string, ID uuid.UUID, config utils.ServerConfig) 
 	return signedToken, results.NewResultOk()
 }
 
-func GenerateRefreshToken(email string, ID uuid.UUID, config utils.ServerConfig) (string, results.Result) {
+func GenerateRefreshToken(ID uuid.UUID, sessionID uuid.UUID, config utils.ServerConfig) (string, results.Result) {
 	expirationTime := time.Now().Add(7 * 24 * time.Hour) // Token expires in 7 days
-	currentUser := &CurrentUser{
-		Email: email,
+	currentUser := &RefreshToken{	
+		SessionID: sessionID,
 		ID:    ID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),

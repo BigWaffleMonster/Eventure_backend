@@ -1,10 +1,11 @@
 package user
 
 import (
-	"errors"
+	"time"
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/interfaces"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/repository"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/requests"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -12,9 +13,10 @@ import (
 
 type UserRepository interface {
 	interfaces.IBaseRepository[User]
-	GetRefreshToken(userID uuid.UUID) (*UserRefreshToken, results.Result)
-	SetRefreshToken(userID uuid.UUID, token string) results.Result
 	GetByEmail(email string) (*User, results.Result)
+	CreateUserSession(userID uuid.UUID, requestInfo requests.RequestInfo) (*uuid.UUID, results.Result)
+	DeleteUserSession(sessionID uuid.UUID) results.Result
+	GetUserSession(sessionID uuid.UUID) (*UserSession, results.Result)
 }
 
 type userRepository struct {
@@ -38,28 +40,39 @@ func (r *userRepository) GetByEmail(email string) (*User, results.Result) {
 	return &user, results.NewResultOk()
 }
 
-func (r *userRepository) GetRefreshToken(userID uuid.UUID) (*UserRefreshToken, results.Result) {
-	var token UserRefreshToken
-	result := r.DB.Where("user_id = ?", userID).First(&token)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil, results.NewResultOk()
-	}
+func (r *userRepository) GetUserSession(sessionID uuid.UUID) (*UserSession, results.Result) {
+	var session UserSession
+	result := r.DB.Where("id = ?", sessionID).First(&session)
 
 	if result.Error != nil {
 		return nil, results.NewInternalError(result.Error.Error())
 	}
 
-	return &token, results.NewResultOk()
+	return &session, results.NewResultOk()
 }
 
-func (r *userRepository) SetRefreshToken(userID uuid.UUID, token string) results.Result {
-	data := UserRefreshToken{
-		UserID:        userID,
-		RefreshToken: token,
-	}
+func (r *userRepository) CreateUserSession(userID uuid.UUID, requestInfo requests.RequestInfo) (*uuid.UUID, results.Result) {
+	data := UserSession{
+			ID : uuid.New(),
+			UserID: userID,
+			IPAddress: requestInfo.IP,
+			UserAgent: requestInfo.UserAgent,
+			Fingerprint: requestInfo.Fingerprint,
+			ExpiresAt: time.Now().Add(time.Hour * 24 * 7),
+			CreatedAt: time.Now(),
+		}
 
 	err := r.DB.Create(data).Error
+
+	if err != nil {
+		return nil, results.NewInternalError(err.Error())
+	}
+
+	return &data.ID, results.NewResultOk()
+}
+
+func (r *userRepository) DeleteUserSession(sessionID uuid.UUID) results.Result {
+	err := r.DB.Delete(&UserSession{}, sessionID).Error
 
 	if err != nil {
 		return results.NewInternalError(err.Error())

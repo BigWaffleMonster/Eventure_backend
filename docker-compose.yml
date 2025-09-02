@@ -13,33 +13,21 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-app
     environment:
-      PGADMIN_DEFAULT_EMAIL: a@a.a # Replace with your desired email
-      PGADMIN_DEFAULT_PASSWORD: admin # Replace with  strong password
-    networks:
-      - app-network
-    ports:
-      - "5050:80" # Access pgAdmin on localhost:5050
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
     depends_on:
       - postgres
-  # app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: go-app
-  #   environment:
-  #     DB_HOST: ${DB_HOST}
-  #     DB_PORT: ${DB_PORT}
-  #     DB_USER: ${DB_USER}
-  #     DB_PASSWORD: ${DB_PASSWORD}
-  #     DB_NAME: ${DB_NAME}
-  #   depends_on:
-  #     - postgres
-  #   ports:
-  #     - "${APP_PORT}:${APP_PORT}"
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
 
 networks:
   app-network:

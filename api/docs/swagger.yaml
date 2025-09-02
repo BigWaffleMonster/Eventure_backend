@@ -3,7 +3,7 @@ definitions:
   github_com_BigWaffleMonster_Eventure_backend_internal_category.CategoryView:
     properties:
       id:
-        type: integer
+        type: string
       title:
         type: string
     type: object
@@ -588,7 +588,7 @@ paths:
       parameters:
       - description: Данные логина
         in: body
-        name: register
+        name: login
         schema:
           $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_pkg_auth.LoginInput'
       produces:
@@ -623,6 +623,51 @@ paths:
           schema:
             $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
       summary: Войти в систему
+      tags:
+      - auth
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: Завершить сессию
+      parameters:
+      - description: Завершить сессию
+        in: body
+        name: logout
+        schema:
+          $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_pkg_auth.RefreshInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseOk-array_string'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_utils_responses.ResponseFailed'
+      summary: Завершить сессию
       tags:
       - auth
   /participant:
@@ -907,7 +952,7 @@ paths:
       parameters:
       - description: Обновить токен
         in: body
-        name: register
+        name: refresh
         schema:
           $ref: '#/definitions/github_com_BigWaffleMonster_Eventure_backend_pkg_auth.RefreshInput'
       produces:

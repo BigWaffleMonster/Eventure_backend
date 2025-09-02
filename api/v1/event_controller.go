@@ -116,6 +116,7 @@ func (c *EventController) Delete(ctx *gin.Context) {
 		return
 	}
 
+	//TODO: check if event is owned by user
 	result := c.Service.Delete(id)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to delete event", result.Errors))

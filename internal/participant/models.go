@@ -8,8 +8,8 @@ import (
 
 type Participant struct {
 	ID          uuid.UUID `gorm:"primaryKey;type:uuid"`
-	UserID      uuid.UUID `gorm:"type:uuid"`
-	EventID     uuid.UUID `gorm:"type:uuid"`
+	UserID      uuid.UUID `gorm:"type:uuid;index"`
+	EventID     uuid.UUID `gorm:"type:uuid;index"`
 	Status      string    `sql:"type:ENUM('Yes', 'No', 'Maybe')"`
 	Ticket      string
 	DateCreated time.Time `gorm:"autoCreateTime"`

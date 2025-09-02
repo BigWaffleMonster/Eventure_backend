@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -9,14 +8,16 @@ import (
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/BigWaffleMonster/Eventure_backend/utils"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/requests"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 )
 
 type AuthService interface {
 	Register(data auth.RegisterInput) (results.Result)
-	Login(data auth.LoginInput) (map[string]string, results.Result)
-	RefreshToken(data auth.RefreshInput) (map[string]string, results.Result)
+	Login(data auth.LoginInput, requestInfo requests.RequestInfo) (map[string]string, results.Result)
+	RefreshToken(data auth.RefreshInput, requestInfo requests.RequestInfo) (map[string]string, results.Result)
+	Logout(data auth.RefreshInput, requestInfo requests.RequestInfo) (results.Result)
 }
 
 type authService struct {
@@ -61,18 +62,12 @@ func (s *authService) Register(data auth.RegisterInput) results.Result {
 	return s.Repo.Create(&userModel)
 }
 
-func (s *authService) Login(data auth.LoginInput) (map[string]string, results.Result) {
+func (s *authService) Login(data auth.LoginInput, requestInfo requests.RequestInfo) (map[string]string, results.Result) {
 	if !helpers.IsValidEmail(data.Email) {
 		return nil, results.NewBadRequestError("email not valid")
 	}
 
 	existingUser, _ := s.Repo.GetByEmail(data.Email)
-	if existingUser == nil {
-		return nil, results.NewNotFoundError("User")
-	}
-
-	existingUser, err := s.Repo.GetByExpression("email = ?" ,data.Email)
-	fmt.Println(err)
 	if existingUser == nil {
 		return nil, results.NewNotFoundError("User")
 	}
@@ -91,7 +86,7 @@ func (s *authService) Login(data auth.LoginInput) (map[string]string, results.Re
 		return nil, result
 	}
 
-	refreshToken, result := s.validateAndGenerateNewRefreshToken(existingUser)
+	refreshToken, result := s.createUserSession(existingUser, requestInfo)
 	if result.IsFailed {
 		return nil, result
 	}
@@ -102,15 +97,11 @@ func (s *authService) Login(data auth.LoginInput) (map[string]string, results.Re
 	}, results.NewResultOk()
 }
 
-func (s *authService) RefreshToken(data auth.RefreshInput) (map[string]string, results.Result) {
+func (s *authService) RefreshToken(data auth.RefreshInput, requestInfo requests.RequestInfo) (map[string]string, results.Result) {
 	claims, result := auth.ValidateRefreshToken(data.RefreshToken, s.Config)
-	if result.IsFailed {
-		return nil, result
-	}
 
-	newAccessToken, result := auth.GenerateAccessToken(claims.Email, claims.ID, s.Config)
 	if result.IsFailed {
-		return nil, result
+		return nil, results.NewUnauthorizedError("Invalid token")
 	}
 
 	existingUser, _ := s.Repo.GetByID(claims.ID)
@@ -118,7 +109,12 @@ func (s *authService) RefreshToken(data auth.RefreshInput) (map[string]string, r
 		return nil, results.NewNotFoundError("User")
 	}
 
-	newRefreshToken, result := s.validateAndGenerateNewRefreshToken(existingUser)
+	newRefreshToken, result := s.updateUserSession(existingUser, claims.SessionID, data.RefreshToken, requestInfo)
+	if result.IsFailed {
+		return nil, result
+	}
+
+	newAccessToken, result := auth.GenerateAccessToken(existingUser.Email, claims.ID, s.Config)
 	if result.IsFailed {
 		return nil, result
 	}
@@ -129,34 +125,78 @@ func (s *authService) RefreshToken(data auth.RefreshInput) (map[string]string, r
 	}, results.NewResultOk()
 }
 
-func (s *authService) validateAndGenerateNewRefreshToken(existingUser *User) (*string, results.Result) {
-	refreshToken, result := s.Repo.GetRefreshToken(existingUser.ID)
+func (s *authService) Logout(data auth.RefreshInput, requestInfo requests.RequestInfo) (results.Result) {
+	/*
+	@author Sergey Khanlarov
+	@data 03.09.2025
+	Поскольку логаут это удаление сессии, то если мы не находим сессию или не удается 
+	найти пользователя и тд и тп, то мы просто возвращаем ок
+	*/
+	claims, result := auth.ValidateRefreshToken(data.RefreshToken, s.Config)
+
 	if result.IsFailed {
-		return nil, result
+		return results.NewResultOk()
 	}
 
-	if refreshToken == nil {
-		return s.generateNewRefreshToken(existingUser)
+	existingUser, _ := s.Repo.GetByID(claims.ID)
+	if existingUser == nil {
+		return results.NewResultOk()
 	}
 
-	_, result = auth.ValidateRefreshToken(refreshToken.RefreshToken, s.Config)
-	if result.IsFailed {
-		return s.generateNewRefreshToken(existingUser)
-	}
+	s.Repo.DeleteUserSession(claims.SessionID)
 
-	return &refreshToken.RefreshToken, results.NewResultOk()
+	return results.NewResultOk()
 }
 
-func (s *authService) generateNewRefreshToken(existingUser *User) (*string, results.Result) {
-	newRefreshToken, result := auth.GenerateRefreshToken(existingUser.Email, existingUser.ID, s.Config)
+func (s *authService) updateUserSession(
+	existingUser *User, 
+	sessionID uuid.UUID, 
+	refreshToken string, 
+	requestInfo requests.RequestInfo) (*string, results.Result) {
+
+	session, result := s.getUserSession(sessionID)
+
 	if result.IsFailed {
 		return nil, result
 	}
 
-	result = s.Repo.SetRefreshToken(existingUser.ID, newRefreshToken)
+	if session.ExpiresAt.Before(time.Now()) {
+		return nil, results.NewUnauthorizedError("Authorization failed")
+	}
+
+	result = s.Repo.DeleteUserSession(session.ID)
 
 	if result.IsFailed {
 		return nil, result
+	}
+
+	return s.createUserSession(existingUser, requestInfo)
+}
+
+func (s *authService) getUserSession(sessionID uuid.UUID) (*UserSession, results.Result) {
+	session, result := s.Repo.GetUserSession(sessionID)
+
+	if result.IsFailed {
+		return nil, results.NewUnauthorizedError("Authorization failed")
+	}
+	
+	if session == nil {
+		return nil, results.NewUnauthorizedError("Authorization failed")
+	}
+
+	return session, results.NewResultOk()
+}
+
+func (s *authService) createUserSession(existingUser *User, requestInfo requests.RequestInfo) (*string, results.Result) {
+	sessionID, result := s.Repo.CreateUserSession(existingUser.ID, requestInfo)
+
+	if result.IsFailed {
+		return nil, results.NewUnauthorizedError("Authorization failed")
+	}
+
+	newRefreshToken, result := auth.GenerateRefreshToken(existingUser.ID, *sessionID, s.Config)
+	if result.IsFailed {
+		return nil, results.NewUnauthorizedError("Authorization failed")
 	}
 
 	return &newRefreshToken, results.NewResultOk()
