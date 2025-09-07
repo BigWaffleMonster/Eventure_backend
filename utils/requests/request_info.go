@@ -30,7 +30,8 @@ func GetClientIP(c *gin.Context) string {
 	}
 
 	// Если заголовков нет, используем RemoteAddr
-	return strings.Split(c.Request.RemoteAddr, ":")[0]
+	// return strings.Split(c.Request.RemoteAddr, ":")[0]//TODO: убрать после тестирования
+	return c.Request.RemoteAddr
 }
 
 func GetUserAgent(c *gin.Context) string {
@@ -59,8 +60,8 @@ func GenerateFingerprint(c *gin.Context) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func GetRequestInfo(c *gin.Context) (RequestInfo) {
-	return RequestInfo{
+func GetRequestInfo(c *gin.Context) (*RequestInfo) {
+	return &RequestInfo{
 		IP: GetClientIP(c),
 		UserAgent: GetUserAgent(c),
 		Fingerprint: GenerateFingerprint(c),

@@ -26,21 +26,26 @@ services:
     depends_on:
       - postgres
 
-  # app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: go-app
-  #   environment:
-  #     DB_HOST: ${DB_HOST}
-  #     DB_PORT: ${DB_PORT}
-  #     DB_USER: ${DB_USER}
-  #     DB_PASSWORD: ${DB_PASSWORD}
-  #     DB_NAME: ${DB_NAME}
-  #   depends_on:
-  #     - postgres
-  #   ports:
-  #     - "${APP_PORT}:${APP_PORT}"
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-app
+    environment:
+      DB_HOST: postgres-db
+      DB_PORT: ${APP_DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      APP_PORT: ${APP_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET_REFRESH: ${JWT_SECRET_REFRESH}
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
 
 networks:
   app-network:

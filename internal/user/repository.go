@@ -62,7 +62,7 @@ func (r *userRepository) CreateUserSession(userID uuid.UUID, requestInfo request
 			CreatedAt: time.Now(),
 		}
 
-	err := r.DB.Create(data).Error
+	err := r.DB.Create(&data).Error
 
 	if err != nil {
 		return nil, results.NewInternalError(err.Error())

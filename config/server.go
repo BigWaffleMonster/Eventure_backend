@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/BigWaffleMonster/Eventure_backend/api"
 	v1 "github.com/BigWaffleMonster/Eventure_backend/api/v1"
@@ -32,6 +33,19 @@ func NewServer(lc fx.Lifecycle, p NewServerParams) {
 	router := gin.Default()
 
 	api.SwaggerInfo(p.ServerConfig)
+
+	// Healthcheck endpoint
+    router.GET("/health", func(c *gin.Context) {
+        c.JSON(http.StatusOK, gin.H{
+            "status": "OK",
+            "message": "Service is running",
+        })
+    })
+
+    // Перенаправление с корневого пути на healthcheck
+    router.GET("/", func(c *gin.Context) {
+        c.Redirect(http.StatusMovedPermanently, "/health")
+    })
 
 	BuildPublicRoutes(router, p)
 
