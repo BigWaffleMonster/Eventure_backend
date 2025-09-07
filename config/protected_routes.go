@@ -7,7 +7,7 @@ import (
 
 func BuildProtectedRoutes(router *gin.Engine, p NewServerParams){
 	protected := router.Group("/api/v1")
-	protected.Use(middlewares.HandleCors(), middlewares.AuthMiddleware(p.ServerConfig))
+	protected.Use(middlewares.HandleCors(), middlewares.AuthMiddleware(p.ServerConfig), middlewares.RequestInfoMiddleware())
 	{
 		{
 			user := protected.Group("/user")

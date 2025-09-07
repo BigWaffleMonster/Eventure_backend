@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -143,7 +144,7 @@ func (s *authService) Logout(data auth.RefreshInput, requestInfo requests.Reques
 		return results.NewResultOk()
 	}
 
-	s.Repo.DeleteUserSession(claims.SessionID)
+	result = s.Repo.DeleteUserSession(claims.SessionID)
 
 	return results.NewResultOk()
 }
@@ -155,6 +156,8 @@ func (s *authService) updateUserSession(
 	requestInfo requests.RequestInfo) (*string, results.Result) {
 
 	session, result := s.getUserSession(sessionID)
+
+	fmt.Println(sessionID.String())
 
 	if result.IsFailed {
 		return nil, result

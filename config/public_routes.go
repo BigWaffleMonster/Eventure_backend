@@ -7,8 +7,9 @@ import (
 
 func BuildPublicRoutes(router *gin.Engine, p NewServerParams){
 	public := router.Group("/api/v1")
-	public.Use(middlewares.HandleCors())
+	public.Use(middlewares.HandleCors(), middlewares.RequestInfoMiddleware())
 	{
+		public.POST("/logout", p.AuthController.Logout)
 		public.POST("/register", p.AuthController.Register)
 		public.POST("/login", p.AuthController.Login)
 		public.POST("/refresh", p.AuthController.RefreshToken)
