@@ -1,6 +1,7 @@
 package event
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -21,8 +22,9 @@ func NewUserWantsToVisitEventHandler(uof UnitOfWork) interfaces.DomainEventHandl
 	}
 }
 
-func (h * userWantsToVisitEventHandler) Handle(domainEventData *domain_events_base.DomainEventData) results.Result {
+func (h * userWantsToVisitEventHandler) Handle(ctx context.Context, domainEventData *domain_events_base.DomainEventData) results.Result {
 	return h.UOF.RunInTx(
+		ctx,
 		NewEventRepository,
 		func(repo EventRepository, store interfaces.DomainEventStore) results.Result{
 			if domainEventData.Type != enums.UserWantsToVisitEvent {
@@ -37,7 +39,7 @@ func (h * userWantsToVisitEventHandler) Handle(domainEventData *domain_events_ba
 
 			var event *Event
 
-			event, result := repo.GetByID(domainEvent.EventID)
+			event, result := repo.GetByID(ctx, domainEvent.EventID)
 			if result.IsFailed {
 				return result
 			}
@@ -48,7 +50,7 @@ func (h * userWantsToVisitEventHandler) Handle(domainEventData *domain_events_ba
 				return results.NewResultOk()
 			}
 
-			result = repo.Update(event)
+			result = repo.Update(ctx, event)
 
 			if result.IsFailed {
 				return result
@@ -64,11 +66,11 @@ func (h * userWantsToVisitEventHandler) Handle(domainEventData *domain_events_ba
 				return result
 			}
 
-			return store.AddToStore(userCanVisitEvent)
+			return store.AddToStore(ctx, userCanVisitEvent)
 		})
 }
 
-func (h * userWantsToVisitEventHandler) IsTypeOf(domainEventData *domain_events_base.DomainEventData) bool {
+func (h * userWantsToVisitEventHandler) IsTypeOf(ctx context.Context, domainEventData *domain_events_base.DomainEventData) bool {
 	return domainEventData.Type == enums.UserWantsToVisitEvent
 }
 
@@ -85,8 +87,9 @@ func NewUserDeletedHandler(uof UnitOfWork) interfaces.DomainEventHandler{
 	}
 }
 
-func (h * userDeletedHandler) Handle(domainEventData *domain_events_base.DomainEventData) results.Result {
+func (h * userDeletedHandler) Handle(ctx context.Context, domainEventData *domain_events_base.DomainEventData) results.Result {
 	return h.UOF.RunInTx(
+		ctx,
 		NewEventRepository,
 		func(repo EventRepository, store interfaces.DomainEventStore) results.Result{
 			if domainEventData.Type != enums.UserDeleted {
@@ -101,13 +104,13 @@ func (h * userDeletedHandler) Handle(domainEventData *domain_events_base.DomainE
 
 			var events *[]Event
 
-			events, result := repo.GetCollectionByExpression("owner_id = ?", domainEvent.UserID)
+			events, result := repo.GetCollectionByExpression(ctx, "owner_id = ?", domainEvent.UserID)
 			if result.IsFailed {
 				return result
 			}
 
 			for _, e := range *events {
-				result = repo.Delete(e.ID)
+				result = repo.Delete(ctx, e.ID)
 
 				if result.IsFailed {
 					return result
@@ -119,7 +122,7 @@ func (h * userDeletedHandler) Handle(domainEventData *domain_events_base.DomainE
 					return result
 				}
 
-				result = store.AddToStore(domainEventData)
+				result = store.AddToStore(ctx, domainEventData)
 
 				if result.IsFailed {
 					return result
@@ -130,6 +133,6 @@ func (h * userDeletedHandler) Handle(domainEventData *domain_events_base.DomainE
 	})
 }
 
-func (h * userDeletedHandler) IsTypeOf(domainEventData *domain_events_base.DomainEventData) bool {
+func (h * userDeletedHandler) IsTypeOf(ctx context.Context, domainEventData *domain_events_base.DomainEventData) bool {
 	return domainEventData.Type == enums.UserDeleted
 }

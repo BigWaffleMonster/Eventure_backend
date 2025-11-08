@@ -1,6 +1,8 @@
 package domain_events
 
 import (
+	"context"
+
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events/domain_events_base"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/interfaces"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
@@ -17,7 +19,7 @@ func NewDomainEventStore(db *gorm.DB) interfaces.DomainEventStore{
 	}
 }
 
-func (e *domainEventStore) AddToStore(domainEventData *domain_events_base.DomainEventData) results.Result{
+func (e *domainEventStore) AddToStore(ctx context.Context, domainEventData *domain_events_base.DomainEventData) results.Result{
 	result := e.DB.Create(domainEventData).Error
 
 	if result != nil {

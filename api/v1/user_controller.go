@@ -41,7 +41,7 @@ func (c *UserController) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	userView, result := c.Service.GetByID(id)
+	userView, result := c.Service.GetByID(ctx.Request.Context(), id)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get user", result.Errors))
 		return
@@ -80,7 +80,7 @@ func (c *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	result := c.Service.Update(id, &body)
+	result := c.Service.Update(ctx.Request.Context(), id, &body)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to update user", result.Errors))
 		return
@@ -112,7 +112,7 @@ func (c *UserController) Delete(ctx *gin.Context) {
 		return
 	}
 
-	result := c.Service.Delete(id)
+	result := c.Service.Delete(ctx.Request.Context(), id)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to delete user", result.Errors))
 		return

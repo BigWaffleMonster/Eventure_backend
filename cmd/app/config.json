@@ -1,0 +1,27 @@
+{
+  "db": {
+    "host": "localhost",
+    "port": 5439,
+    "user": "postgres",
+    "password": "password",
+    "name": "eventuredb"
+  },
+  "go_environment": "Development",
+  "app": {
+    "port": 5000,
+    "name": "eventura"
+  },
+  "jwt": {
+    "secret": "dw2YdST9w6G_8ABZsВЈ",
+    "refresh_secret": "dw2YdST9w6G_8ABZsВЈ"
+  },
+  "logging": {
+    "console": {
+      "level": "debug"
+    },
+    "loki": {
+      "url": "http://localhost:3100",
+      "level": "info"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-package helpers
+package mappers
 
 func MapArray[T any, U any](arr *[]T, fn func(T) U) *[]U {
 	result := make([]U, len(*arr))

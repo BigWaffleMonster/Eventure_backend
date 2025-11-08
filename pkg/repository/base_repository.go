@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/interfaces"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
@@ -15,7 +17,7 @@ func NewRepository[T any] (db *gorm.DB) interfaces.IBaseRepository[T]  {
 	return &BaseRepository[T] {DB: db}
 }
 
-func (r *BaseRepository[T]) Create(entity *T) results.Result {
+func (r *BaseRepository[T]) Create(ctx context.Context, entity *T) results.Result {
 	err := r.DB.Create(entity).Error
 
 	if err != nil {
@@ -25,7 +27,7 @@ func (r *BaseRepository[T]) Create(entity *T) results.Result {
 	return results.NewResultOk()
 }
 
-func (r *BaseRepository[T]) Delete(id uuid.UUID) results.Result {
+func (r *BaseRepository[T]) Delete(ctx context.Context, id uuid.UUID) results.Result {
 	var entity T
 
 	err := r.DB.Where("id = ?", id).Delete(&entity).Error
@@ -37,7 +39,7 @@ func (r *BaseRepository[T]) Delete(id uuid.UUID) results.Result {
 	return results.NewResultOk()
 }
 
-func (r *BaseRepository[T]) Update(entity *T) results.Result {
+func (r *BaseRepository[T]) Update(ctx context.Context, entity *T) results.Result {
 	err := r.DB.Save(entity).Error
 
 	if err != nil {
@@ -47,7 +49,7 @@ func (r *BaseRepository[T]) Update(entity *T) results.Result {
 	return results.NewResultOk()
 }
 
-func (r *BaseRepository[T]) GetByID(id interface{}) (*T, results.Result) {
+func (r *BaseRepository[T]) GetByID(ctx context.Context, id interface{}) (*T, results.Result) {
 	var entity T
 
 	result := r.DB.First(&entity, "id = ?", id)
@@ -59,7 +61,7 @@ func (r *BaseRepository[T]) GetByID(id interface{}) (*T, results.Result) {
 	return &entity, results.NewResultOk()
 }
 
-func (r *BaseRepository[T]) GetCollection() (*[]T, results.Result){
+func (r *BaseRepository[T]) GetCollection(ctx context.Context) (*[]T, results.Result){
 	var entities []T
 
 	result := r.DB.Find(&entities)
@@ -71,7 +73,7 @@ func (r *BaseRepository[T]) GetCollection() (*[]T, results.Result){
 	return &entities, results.NewResultOk()
 }
 
-func (r *BaseRepository[T]) GetByExpression(expr string, conds ...any) (*T, results.Result){
+func (r *BaseRepository[T]) GetByExpression(ctx context.Context, expr string, conds ...any) (*T, results.Result){
 	var entity T
 
 	result := r.DB.First(&entity, expr, conds)
@@ -84,7 +86,7 @@ func (r *BaseRepository[T]) GetByExpression(expr string, conds ...any) (*T, resu
 }
 
 
-func (r *BaseRepository[T]) GetCollectionByExpression(expr string, conds ...any) (*[]T, results.Result){
+func (r *BaseRepository[T]) GetCollectionByExpression(ctx context.Context, expr string, conds ...any) (*[]T, results.Result){
 	var entities []T
 
 	result := r.DB.Find(&entities, expr, conds)

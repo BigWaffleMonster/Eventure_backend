@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func HandleCors() gin.HandlerFunc {
+func CorsMiddleware() gin.HandlerFunc {
 	return cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:5173"}, // Allowed origins
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

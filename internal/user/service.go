@@ -1,6 +1,8 @@
 package user
 
 import (
+	"context"
+
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events/domain_events_definitions"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/helpers"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
@@ -9,9 +11,9 @@ import (
 )
 
 type UserService interface {
-	GetByID(id uuid.UUID) (*UserView, results.Result)
-	Update(id uuid.UUID, data *UserUpdateInput) results.Result
-	Delete(id uuid.UUID) results.Result
+	GetByID(ctx context.Context, id uuid.UUID) (*UserView, results.Result)
+	Update(ctx context.Context, id uuid.UUID, data *UserUpdateInput) results.Result
+	Delete(ctx context.Context, id uuid.UUID) results.Result
 }
 
 type userService struct {
@@ -24,10 +26,10 @@ func NewUserService(uof UnitOfWork) UserService {
 	}
 }
 
-func (s *userService) GetByID(id uuid.UUID) (*UserView, results.Result) {
+func (s *userService) GetByID(ctx context.Context,id uuid.UUID) (*UserView, results.Result) {
 	var userView UserView
 
-	data, result := s.Uof.Repository().GetByID(id)
+	data, result := s.Uof.Repository(ctx).GetByID(ctx, id)
 	if result.IsFailed {
 		return nil, result
 	}
@@ -37,8 +39,8 @@ func (s *userService) GetByID(id uuid.UUID) (*UserView, results.Result) {
 	return &userView, results.NewResultOk()
 }
 
-func (s *userService) Update(id uuid.UUID, data *UserUpdateInput) results.Result {
-	user, result := s.Uof.Repository().GetByID(id)
+func (s *userService) Update(ctx context.Context,id uuid.UUID, data *UserUpdateInput) results.Result {
+	user, result := s.Uof.Repository(ctx).GetByID(ctx, id)
 	if result.IsFailed {
 		return result
 	}
@@ -62,15 +64,15 @@ func (s *userService) Update(id uuid.UUID, data *UserUpdateInput) results.Result
 		user.Password = password
 	}
 
-	return s.Uof.Repository().Update(user)
+	return s.Uof.Repository(ctx).Update(ctx, user)
 }
 
-func (s *userService) Delete(id uuid.UUID) results.Result {
+func (s *userService) Delete(ctx context.Context,id uuid.UUID) results.Result {
 	domainEventData, result := domain_events_definitions.NewUserDeleted(id)
 
 	if result.IsFailed {
 		return result
 	}
 
-	return s.Uof.DomainEventStore().AddToStore(domainEventData)
+	return s.Uof.DomainEventStore(ctx).AddToStore(ctx, domainEventData)
 }

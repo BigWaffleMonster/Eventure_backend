@@ -1,0 +1,2 @@
+# generate-prometheus-hash.ps1
+docker run --rm -i httpd:alpine htpasswd -nb prom-user "DtU9It1v2Lt6c00e8s2dRe1JOC"

@@ -18,5 +18,7 @@
 создание участника, создание события
 уникальность почты для пользаков
 
+Доделать контекст, логгирование
+
 
 https://github.com/hhuseyinpay/go-generic-repository-pattern/blob/main/repository/user.go

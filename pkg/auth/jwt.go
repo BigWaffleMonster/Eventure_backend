@@ -1,18 +1,19 @@
 package auth
 
 import (
+	"context"
 	"time"
 
-	"github.com/BigWaffleMonster/Eventure_backend/utils"
+	"github.com/BigWaffleMonster/Eventure_backend/config"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-func ValidateAccessToken(tokenString string, config utils.ServerConfig) (*CurrentUser, results.Result) {
+func ValidateAccessToken(ctx context.Context, tokenString string) (*CurrentUser, results.Result) {
 	currentUser := &CurrentUser{}
 	token, err := jwt.ParseWithClaims(tokenString, currentUser, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.JWT_SECRET), nil
+		return []byte(config.GetJWTSecret()), nil
 	})
 
 	if err != nil || !token.Valid {
@@ -22,10 +23,10 @@ func ValidateAccessToken(tokenString string, config utils.ServerConfig) (*Curren
 	return currentUser, results.NewResultOk()
 }
 
-func ValidateRefreshToken(tokenString string, config utils.ServerConfig) (*RefreshToken, results.Result) {
+func ValidateRefreshToken(ctx context.Context, tokenString string) (*RefreshToken, results.Result) {
 	currentUser := &RefreshToken{}
 	token, err := jwt.ParseWithClaims(tokenString, currentUser, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.JWT_SECRET_REFRESH), nil
+		return []byte(config.GetJWTRefreshSecret()), nil
 	})
 
 	if err != nil || !token.Valid {
@@ -35,8 +36,8 @@ func ValidateRefreshToken(tokenString string, config utils.ServerConfig) (*Refre
 	return currentUser, results.NewResultOk()
 }
 
-func GenerateAccessToken(email string, ID uuid.UUID, config utils.ServerConfig) (string, results.Result) {
-	expirationTime := time.Now().Add(60 * time.Minute) // Token expires in 5 minutes
+func GenerateAccessToken(ctx context.Context, email string, ID uuid.UUID) (string, results.Result) {
+	expirationTime := time.Now().Add(60 * time.Minute)
 	currentUser := &CurrentUser{
 		Email: email,
 		ID:    ID,
@@ -47,7 +48,7 @@ func GenerateAccessToken(email string, ID uuid.UUID, config utils.ServerConfig) 
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, currentUser)
 
-	signedToken, err := token.SignedString([]byte(config.JWT_SECRET))
+	signedToken, err := token.SignedString([]byte(config.GetJWTSecret()))
 
 	if err != nil {
 		return "", results.NewBadRequestError(err.Error())
@@ -56,7 +57,7 @@ func GenerateAccessToken(email string, ID uuid.UUID, config utils.ServerConfig) 
 	return signedToken, results.NewResultOk()
 }
 
-func GenerateRefreshToken(ID uuid.UUID, sessionID uuid.UUID, config utils.ServerConfig) (string, results.Result) {
+func GenerateRefreshToken(ctx context.Context, ID uuid.UUID, sessionID uuid.UUID) (string, results.Result) {
 	expirationTime := time.Now().Add(7 * 24 * time.Hour) // Token expires in 7 days
 	currentUser := &RefreshToken{	
 		SessionID: sessionID,
@@ -68,7 +69,7 @@ func GenerateRefreshToken(ID uuid.UUID, sessionID uuid.UUID, config utils.Server
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, currentUser)
 
-	signedToken, err := token.SignedString([]byte(config.JWT_SECRET_REFRESH))
+	signedToken, err := token.SignedString([]byte(config.GetJWTRefreshSecret()))
 
 	if err != nil {
 		return "", results.NewUnauthorizedError(err.Error())

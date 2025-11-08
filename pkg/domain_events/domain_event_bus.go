@@ -1,6 +1,7 @@
 package domain_events
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events/domain_events_base"
@@ -29,21 +30,21 @@ func NewDomainEventBus(params DomainEventBusParams) interfaces.DomainEventBus{
 	}
 }
 
-func (e *domainEventBus) Publish() results.Result{
-	domainEvents, result := e.GetDomainEvents()
+func (e *domainEventBus) Publish(ctx context.Context) results.Result{
+	domainEvents, result := e.GetDomainEvents(ctx)
 
 	if result.IsFailed {
 		return result
 	}
 
 	for _, domainEvent := range *domainEvents{
-		result = e.publishEvent(&domainEvent)
+		result = e.publishEvent(ctx, &domainEvent)
 
 		if result.IsFailed {
 			return result.Merge(results.NewInternalError(fmt.Sprintf("failed to publish domain event: %s", domainEvent.ID.String())))
 		}
 
-		result = e.deleteFromStore(&domainEvent)
+		result = e.deleteFromStore(ctx, &domainEvent)
 
 		if result.IsFailed {
 			return result.Merge(results.NewInternalError(fmt.Sprintf("failed to remove domain event: %s", domainEvent.ID.String())))
@@ -53,18 +54,18 @@ func (e *domainEventBus) Publish() results.Result{
 	return results.NewResultOk()
 }
 
-func (e *domainEventBus) publishEvent(domainEventData *domain_events_base.DomainEventData) results.Result{
+func (e *domainEventBus) publishEvent(ctx context.Context, domainEventData *domain_events_base.DomainEventData) results.Result{
 
 	for _, h := range e.Handlers {
-		if h.IsTypeOf(domainEventData){
-			return h.Handle(domainEventData)
+		if h.IsTypeOf(ctx, domainEventData){
+			return h.Handle(ctx, domainEventData)
 		}
 	}
 
 	return results.NewResultOk()
 }
 
-func (e *domainEventBus) deleteFromStore(domainEventData *domain_events_base.DomainEventData) results.Result{
+func (e *domainEventBus) deleteFromStore(ctx context.Context, domainEventData *domain_events_base.DomainEventData) results.Result{
 	var event domain_events_base.DomainEventData
 
 	err := e.DB.Where("id = ?", domainEventData.ID).Delete(&event).Error
@@ -77,7 +78,7 @@ func (e *domainEventBus) deleteFromStore(domainEventData *domain_events_base.Dom
 }
 
 
-func (e *domainEventBus) GetDomainEvents() (*[]domain_events_base.DomainEventData, results.Result){
+func (e *domainEventBus) GetDomainEvents(ctx context.Context) (*[]domain_events_base.DomainEventData, results.Result){
 	var events []domain_events_base.DomainEventData
 
 	result := e.DB.Find(&events)

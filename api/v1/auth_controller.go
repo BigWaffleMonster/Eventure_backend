@@ -5,7 +5,7 @@ import (
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/user"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
-	"github.com/BigWaffleMonster/Eventure_backend/utils/requests"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/metrics"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/responses"
 	"github.com/gin-gonic/gin"
 )
@@ -41,11 +41,13 @@ func (c *AuthController) Register(ctx *gin.Context) {
 		return
 	}
 
-	result := c.Service.Register(body)
+	result := c.Service.Register(ctx.Request.Context(), body)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to register", result.Errors))
 		return
 	}
+
+	metrics.UsersRegistered.Inc()
 
 	ctx.JSON(http.StatusCreated, responses.NewResponseOkString("Registered success"))
 }
@@ -73,9 +75,7 @@ func (c *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	requestInfo := ctx.MustGet("request_info").(*requests.RequestInfo)
-
-	tokens, result := c.Service.Login(body, *requestInfo)
+	tokens, result := c.Service.Login(ctx.Request.Context(), body)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to login", result.Errors))
 		return
@@ -107,10 +107,7 @@ func (c *AuthController) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	//TODO: пройтись и убрать все методы которые могут вызвать панику, а то у нас приложение падать будет. ПО идее
-	requestInfo := ctx.MustGet("request_info").(*requests.RequestInfo)
-
-	tokens, result := c.Service.RefreshToken(refreshInput, *requestInfo)
+	tokens, result := c.Service.RefreshToken(ctx.Request.Context(), refreshInput)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to refresh token", result.Errors))
 		return
@@ -142,10 +139,7 @@ func (c *AuthController) Logout(ctx *gin.Context) {
 		return
 	}
 
-	//TODO: пройтись и убрать все методы которые могут вызвать панику, а то у нас приложение падать будет. ПО идее
-	requestInfo := ctx.MustGet("request_info").(*requests.RequestInfo)
-
-	result := c.Service.Logout(refreshInput, *requestInfo)
+	result := c.Service.Logout(ctx.Request.Context(), refreshInput)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to refresh token", result.Errors))
 		return

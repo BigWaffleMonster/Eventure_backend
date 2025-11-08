@@ -1,6 +1,8 @@
 package unit_of_work
 
 import (
+	"context"
+
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/interfaces"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
@@ -14,6 +16,7 @@ type UnitOfWork[TRepo interfaces.IBaseRepository[TEntity], TEntity any] struct{
 }
 
 func (uof *UnitOfWork[TRepo, TEntity]) RunInTx(
+	ctx context.Context, 
 	repository func(tx *gorm.DB) TRepo,
 	execute func(repo TRepo, store interfaces.DomainEventStore) results.Result) results.Result {
 	tx := uof.DB.Begin()
@@ -33,10 +36,10 @@ func (uof *UnitOfWork[TRepo, TEntity]) RunInTx(
 	return result
 }
 
-func (uof *UnitOfWork[TRepo, TEntity]) Repository() TRepo{
+func (uof *UnitOfWork[TRepo, TEntity]) Repository(ctx context.Context) TRepo{
 	return uof.Repo
 }
 
-func (uof *UnitOfWork[TRepo, TEntity]) DomainEventStore() interfaces.DomainEventStore{
+func (uof *UnitOfWork[TRepo, TEntity]) DomainEventStore(ctx context.Context) interfaces.DomainEventStore{
 	return uof.Store
 }

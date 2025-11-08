@@ -1,16 +1,20 @@
-package config
+package cmd
 
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 
 	"github.com/BigWaffleMonster/Eventure_backend/api"
 	v1 "github.com/BigWaffleMonster/Eventure_backend/api/v1"
+	"github.com/BigWaffleMonster/Eventure_backend/config"
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/interfaces"
-	"github.com/BigWaffleMonster/Eventure_backend/utils"
+	sglogger "github.com/SergeiKhanlarov/seri-go-logger"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
@@ -25,16 +29,18 @@ type NewServerParams struct {
 	ParticipantController *v1.ParticipantController
 	UserController *v1.UserController
 	DomainEventQueue interfaces.DomainEventQueue
-	ServerConfig utils.ServerConfig
+	Logger sglogger.Logger
 }
 
 func NewServer(lc fx.Lifecycle, p NewServerParams) {
-
+	gin.SetMode(gin.ReleaseMode)
+	gin.DefaultWriter = io.Discard
+	
 	router := gin.Default()
+	router.Use(gin.Recovery())
 
-	api.SwaggerInfo(p.ServerConfig)
+	api.SwaggerInfo()
 
-	// Healthcheck endpoint
     router.GET("/health", func(c *gin.Context) {
         c.JSON(http.StatusOK, gin.H{
             "status": "OK",
@@ -42,47 +48,41 @@ func NewServer(lc fx.Lifecycle, p NewServerParams) {
         })
     })
 
-    // Перенаправление с корневого пути на healthcheck
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
     router.GET("/", func(c *gin.Context) {
         c.Redirect(http.StatusMovedPermanently, "/health")
     })
+	
+	router.GET("/swagger", func(c *gin.Context) {
+        c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
+    })
 
-	BuildPublicRoutes(router, p)
-
-	BuildProtectedRoutes(router, p)
+	BuildRoutes(router, p)
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			return OnStart(router, p)
+			p.Logger.Info(ctx, "Starting application components...")
+			go RunServer(ctx, router, p)
+
+			p.DomainEventQueue.StartQueue(ctx)
+
+			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			return OnStop()
+			p.Logger.Info(ctx, "Shutting down application components...")
+			return nil
 		},
 	})
  }
 
- func OnStart(router *gin.Engine, p NewServerParams) error{
-	fmt.Println("Server starting...")
-
-	go RunServer(router, p.ServerConfig)
-
-	p.DomainEventQueue.StartQueue()
-	
-	return nil
- }
-
- func OnStop() error {
-	fmt.Println("Server stopped")
-
-	return nil
- }
-
- func RunServer(router *gin.Engine, config utils.ServerConfig) {
+ func RunServer(ctx context.Context, router *gin.Engine, p NewServerParams) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.NewHandler()))
 
-	if err := router.Run(fmt.Sprintf(":%d", config.APP_PORT)); err != nil {
+	if err := router.Run(fmt.Sprintf(":%d", config.GetAppPort())); err != nil {
+		p.Logger.Fatal(ctx, "Failed to start server: %s", err.Error())
 		log.Fatalf("Failed to start server: %v", err)
 	}
 
-	log.Printf("Server is running on port %d...\n", config.APP_PORT)
+	p.Logger.Info(ctx, "Server started successfully on port %d", config.GetAppPort())
  }

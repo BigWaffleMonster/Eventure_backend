@@ -1,7 +1,8 @@
 .env
 
 cmd/*
-!cmd/main.go
+!cmd/app/
+!cmd/*.go
 
 # Created by https://www.toptal.com/developers/gitignore/api/go,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,visualstudiocode
@@ -49,3 +50,4 @@ go.work
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/go,visualstudiocode
+/bin
