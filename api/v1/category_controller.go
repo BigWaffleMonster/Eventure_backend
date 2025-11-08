@@ -13,6 +13,10 @@ type CategoryController struct {
 	Service category.CategoryService
 }
 
+func NewCategoryController(service category.CategoryService) *CategoryController {
+	return &CategoryController{Service: service}
+}
+
 // @summary Получение категорий
 // @schemes
 // @description Получение категорий
@@ -27,12 +31,8 @@ type CategoryController struct {
 // @failure 409 {object} responses.ResponseFailed
 // @failure 500 {object} responses.ResponseFailed
 // @router /category [get]
-func NewCategoryController(service category.CategoryService) *CategoryController {
-	return &CategoryController{Service: service}
-}
-
 func (c *CategoryController) GetCollection(ctx *gin.Context) {
-	resp, result := c.Service.GetCollection()
+	resp, result := c.Service.GetCollection(ctx.Request.Context())
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get categories", result.Errors))
 		return
@@ -63,7 +63,7 @@ func (c *CategoryController) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	resp, result := c.Service.GetByID(id)
+	resp, result := c.Service.GetByID(ctx.Request.Context(), id)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get category", result.Errors))
 		return

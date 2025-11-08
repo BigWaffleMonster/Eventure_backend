@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/participant"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/responses"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -41,9 +40,7 @@ func (c *ParticipantController) Create(ctx *gin.Context) {
 		return
 	}
 
-	currentUser := ctx.MustGet(auth.CurrentUserVarName).(*auth.CurrentUser)
-
-	result := c.Service.Create(&body, currentUser)
+	result := c.Service.Create(ctx.Request.Context(), &body)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to create participant", result.Errors))
 		return
@@ -83,9 +80,7 @@ func (c *ParticipantController) ChangeState(ctx *gin.Context) {
 		return
 	}
 
-	currentUser := ctx.MustGet(auth.CurrentUserVarName).(auth.CurrentUser)
-
-	result := c.Service.ChangeState(id, &body, currentUser)
+	result := c.Service.ChangeState(ctx.Request.Context(), id, &body)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to update participant", result.Errors))
 		return
@@ -117,9 +112,7 @@ func (c *ParticipantController) Delete(ctx *gin.Context) {
 		return
 	}
 
-	currentUser := ctx.MustGet(auth.CurrentUserVarName).(auth.CurrentUser)
-
-	result := c.Service.Delete(id, currentUser)
+	result := c.Service.Delete(ctx.Request.Context(), id)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to delete participant", result.Errors))
 		return
@@ -151,9 +144,7 @@ func (c *ParticipantController) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	currentUser := ctx.MustGet(auth.CurrentUserVarName).(auth.CurrentUser)
-
-	participantView, result := c.Service.GetByID(id, currentUser)
+	participantView, result := c.Service.GetByID(ctx.Request.Context(), id)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get participant", result.Errors))
 		return
@@ -186,7 +177,7 @@ func (c *ParticipantController) GetCollection(ctx *gin.Context) {
 		return
 	}
 
-	participantViews, result := c.Service.GetCollection(eventID)
+	participantViews, result := c.Service.GetCollection(ctx.Request.Context(), eventID)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get participants", result.Errors))
 		return
@@ -212,9 +203,7 @@ func (c *ParticipantController) GetCollection(ctx *gin.Context) {
 // @failure 500 {object} responses.ResponseFailed
 // @router /participant [get]
 func (c *ParticipantController) GetOwnedCollection(ctx *gin.Context) {
-	currentUser := ctx.MustGet(auth.CurrentUserVarName).(*auth.CurrentUser)
-
-	participantViews, result := c.Service.GetOwnedCollection(currentUser)
+	participantViews, result := c.Service.GetOwnedCollection(ctx.Request.Context())
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get participants", result.Errors))
 		return

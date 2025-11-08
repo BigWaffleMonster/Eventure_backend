@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/event"
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/responses"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -42,9 +41,7 @@ func (c *EventController) Create(ctx *gin.Context) {
 		return
 	}
 
-	currentUser := ctx.MustGet(auth.CurrentUserVarName).(*auth.CurrentUser)
-
-	result := c.Service.Create(&body, currentUser)
+	result := c.Service.Create(ctx.Request.Context(), &body)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to create event", result.Errors))
 		return
@@ -84,7 +81,7 @@ func (c *EventController) Update(ctx *gin.Context) {
 		return
 	}
 
-	result := c.Service.Update(id, &body)
+	result := c.Service.Update(ctx.Request.Context(), id, &body)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to update event", result.Errors))
 		return
@@ -116,8 +113,7 @@ func (c *EventController) Delete(ctx *gin.Context) {
 		return
 	}
 
-	//TODO: check if event is owned by user
-	result := c.Service.Delete(id)
+	result := c.Service.Delete(ctx.Request.Context(), id)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to delete event", result.Errors))
 		return
@@ -149,7 +145,7 @@ func (c *EventController) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	eventView, result := c.Service.GetByID(id)
+	eventView, result := c.Service.GetByID(ctx.Request.Context(), id)
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get event", result.Errors))
 		return
@@ -175,7 +171,7 @@ func (c *EventController) GetByID(ctx *gin.Context) {
 // @failure 500 {object} responses.ResponseFailed
 // @router /event [get]
 func (c *EventController) GetCollection(ctx *gin.Context) {
-	eventViews, result := c.Service.GetCollection()
+	eventViews, result := c.Service.GetCollection(ctx.Request.Context())
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get events", result.Errors))
 		return
@@ -201,9 +197,7 @@ func (c *EventController) GetCollection(ctx *gin.Context) {
 // @failure 500 {object} responses.ResponseFailed
 // @router /event/private [get]
 func (c *EventController) GetOwnedCollection(ctx *gin.Context) {
-	currentUser := ctx.MustGet(auth.CurrentUserVarName).(*auth.CurrentUser)
-
-	eventViews, result := c.Service.GetOwnedCollection(currentUser)
+	eventViews, result := c.Service.GetOwnedCollection(ctx.Request.Context())
 	if result.IsFailed {
 		ctx.JSON(result.Code, responses.NewResponseFailed("Failed to get events", result.Errors))
 		return

@@ -1,21 +1,23 @@
 package participant
 
 import (
-	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
+	"context"
+
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events/domain_events_definitions"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/helpers"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/mappers"
 	"github.com/BigWaffleMonster/Eventure_backend/utils/results"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 )
 
 type ParticipantService interface{
-    Create(data *ParticipantInput, currentUser *auth.CurrentUser) results.Result
-	ChangeState(id uuid.UUID, state *string, currentUser auth.CurrentUser) results.Result
-	Delete(id uuid.UUID, currentUser auth.CurrentUser) results.Result
-	GetByID(id uuid.UUID, currentUser auth.CurrentUser) (*ParticipantView, results.Result)
-	GetCollection(eventID uuid.UUID) (*[]ParticipantView, results.Result)
-	GetOwnedCollection(currentUser *auth.CurrentUser) (*[]ParticipantView, results.Result)
+    Create(ctx context.Context, data *ParticipantInput) results.Result
+	ChangeState(ctx context.Context, id uuid.UUID, state *string) results.Result
+	Delete(ctx context.Context, id uuid.UUID) results.Result
+	GetByID(ctx context.Context, id uuid.UUID) (*ParticipantView, results.Result)
+	GetCollection(ctx context.Context, eventID uuid.UUID) (*[]ParticipantView, results.Result)
+	GetOwnedCollection(ctx context.Context) (*[]ParticipantView, results.Result)
 }
 
 type participantService struct {
@@ -28,33 +30,45 @@ func NewParticipantService(uof UnitOfWork) ParticipantService {
 	}
 }
 
-func (s *participantService) Create(data *ParticipantInput, currentUser *auth.CurrentUser) results.Result {
+func (s *participantService) Create(ctx context.Context, data *ParticipantInput) results.Result {
 	var participants *[]Participant
 
-	participants, result := s.Uof.Repository().GetCollectionByExpression("event_id = ?", data.EventID)
+	participants, result := s.Uof.Repository(ctx).GetCollectionByExpression(ctx, "event_id = ?", data.EventID)
 
 	if result.IsFailed {
 		return result
 	}
 
-	domainEventData, result := domain_events_definitions.NewUserWantsToVisitEvent(*data.EventID, currentUser.ID, len(*participants), *data.Status)
+	currentUserID, err := helpers.GetUserID(ctx)
+
+	if err != nil {
+		return  results.NewUnauthorizedError(err.Error())
+	}
+
+	domainEventData, result := domain_events_definitions.NewUserWantsToVisitEvent(*data.EventID, currentUserID, len(*participants), *data.Status)
 
 	if result.IsFailed {
 		return result
 	}
 
-	return s.Uof.DomainEventStore().AddToStore(domainEventData)
+	return s.Uof.DomainEventStore(ctx).AddToStore(ctx, domainEventData)
 }
 
-func (s *participantService) ChangeState(id uuid.UUID, state *string, currentUser auth.CurrentUser) results.Result {
+func (s *participantService) ChangeState(ctx context.Context, id uuid.UUID, state *string) results.Result {
 	var participant *Participant
 
-	participant, result := s.Uof.Repository().GetByID(id)
+	participant, result := s.Uof.Repository(ctx).GetByID(ctx, id)
 	if result.IsFailed {
 		return result
 	}
 
-	if participant.UserID != currentUser.ID{
+	currentUserID, err := helpers.GetUserID(ctx)
+
+	if err != nil {
+		return  results.NewUnauthorizedError(err.Error())
+	}
+
+	if participant.UserID != currentUserID{
 		return results.NewForbiddenError()
 	}
 
@@ -62,29 +76,41 @@ func (s *participantService) ChangeState(id uuid.UUID, state *string, currentUse
 		participant.Status = *state
 	}
 
-	return s.Uof.Repository().Update(participant)
+	return s.Uof.Repository(ctx).Update(ctx, participant)
 }
 
-func (s *participantService) Delete(id uuid.UUID, currentUser auth.CurrentUser) results.Result {
-	participant, result := s.Uof.Repository().GetByID(id)
+func (s *participantService) Delete(ctx context.Context, id uuid.UUID) results.Result {
+	participant, result := s.Uof.Repository(ctx).GetByID(ctx, id)
 	if result.IsFailed {
 		return result
 	}
 
-	if participant.UserID != currentUser.ID{
+	currentUserID, err := helpers.GetUserID(ctx)
+
+	if err != nil {
+		return  results.NewUnauthorizedError(err.Error())
+	}
+
+	if participant.UserID != currentUserID{
 		return results.NewForbiddenError()
 	}
 
-	return s.Uof.Repository().Delete(id)
+	return s.Uof.Repository(ctx).Delete(ctx, id)
 }
 
-func (s *participantService) GetByID(id uuid.UUID, currentUser auth.CurrentUser) (*ParticipantView, results.Result) {
-	participant, result := s.Uof.Repository().GetByID(id)
+func (s *participantService) GetByID(ctx context.Context, id uuid.UUID) (*ParticipantView, results.Result) {
+	participant, result := s.Uof.Repository(ctx).GetByID(ctx, id)
 	if result.IsFailed {
 		return nil, result
 	}
 
-	if participant.UserID != currentUser.ID{
+	currentUserID, err := helpers.GetUserID(ctx)
+
+	if err != nil {
+		return nil, results.NewUnauthorizedError(err.Error())
+	}
+
+	if participant.UserID != currentUserID{
 		return nil, results.NewForbiddenError()
 	}
 
@@ -95,15 +121,15 @@ func (s *participantService) GetByID(id uuid.UUID, currentUser auth.CurrentUser)
 	return &participantView, results.NewResultOk()
 }
 
-func (s *participantService) GetCollection(eventID uuid.UUID) (*[]ParticipantView, results.Result) {
+func (s *participantService) GetCollection(ctx context.Context, eventID uuid.UUID) (*[]ParticipantView, results.Result) {
 	var participants *[]Participant
 
-	participants, result := s.Uof.Repository().GetCollectionByExpression("event_id = ?", eventID)
+	participants, result := s.Uof.Repository(ctx).GetCollectionByExpression(ctx, "event_id = ?", eventID)
 	if result.IsFailed {
 		return nil, result
 	}
 
-	views := helpers.MapArray(participants, func(participant Participant) ParticipantView {
+	views := mappers.MapArray(participants, func(participant Participant) ParticipantView {
 		var participantView ParticipantView
 		copier.Copy(&participantView, &participant)
 		return participantView
@@ -112,15 +138,21 @@ func (s *participantService) GetCollection(eventID uuid.UUID) (*[]ParticipantVie
 	return views, results.NewResultOk()
 }
 
-func (s *participantService) GetOwnedCollection(currentUser *auth.CurrentUser) (*[]ParticipantView, results.Result) {
+func (s *participantService) GetOwnedCollection(ctx context.Context) (*[]ParticipantView, results.Result) {
 	var participants *[]Participant
+
+	currentUserID, err := helpers.GetUserID(ctx)
+
+	if err != nil {
+		return nil,  results.NewUnauthorizedError(err.Error())
+	}
 	
-	participants, result := s.Uof.Repository().GetCollectionByExpression("user_id=?", currentUser.ID)
+	participants, result := s.Uof.Repository(ctx).GetCollectionByExpression(ctx, "user_id=?", currentUserID)
 	if result.IsFailed {
 		return nil, result
 	}
 
-	views := helpers.MapArray(participants, func(participant Participant) ParticipantView {
+	views := mappers.MapArray(participants, func(participant Participant) ParticipantView {
 		var participantView ParticipantView
 		copier.Copy(&participantView, &participant)
 		return participantView

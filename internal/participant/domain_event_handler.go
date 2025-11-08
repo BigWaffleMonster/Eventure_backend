@@ -1,6 +1,7 @@
 package participant
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/domain_events/domain_events_base"
@@ -23,7 +24,7 @@ func NewEventDeletedHandler(repo ParticipantRepository) interfaces.DomainEventHa
 	}
 }
 
-func (h * eventDeletedHandler) Handle(domainEventData *domain_events_base.DomainEventData) results.Result {
+func (h * eventDeletedHandler) Handle(ctx context.Context, domainEventData *domain_events_base.DomainEventData) results.Result {
 
 	if domainEventData.Type != enums.EventDeleted {
 		return results.NewInvalidDomainTypeError(domainEventData.Type.String(), enums.EventDeleted.String())
@@ -37,13 +38,13 @@ func (h * eventDeletedHandler) Handle(domainEventData *domain_events_base.Domain
 
 	var participants *[]Participant
 
-	participants, result := h.Repo.GetCollectionByExpression("event_id = ?", domainEvent.EventID)
+	participants, result := h.Repo.GetCollectionByExpression(ctx, "event_id = ?", domainEvent.EventID)
 	if result.IsFailed {
 		return result
 	}
 
 	for _, p := range *participants {
-		result = h.Repo.Delete(p.ID)
+		result = h.Repo.Delete(ctx, p.ID)
 
 		if result.IsFailed {
 			return result
@@ -53,7 +54,7 @@ func (h * eventDeletedHandler) Handle(domainEventData *domain_events_base.Domain
 	return results.NewResultOk()
 }
 
-func (h * eventDeletedHandler) IsTypeOf(domainEventData *domain_events_base.DomainEventData) bool {
+func (h * eventDeletedHandler) IsTypeOf(ctx context.Context, domainEventData *domain_events_base.DomainEventData) bool {
 	return domainEventData.Type == enums.EventDeleted
 }
 
@@ -69,7 +70,7 @@ func NewUserCanVisitEventHandler(repo ParticipantRepository) interfaces.DomainEv
 	}
 }
 
-func (h * userCanVisitEventHandler) Handle(domainEventData *domain_events_base.DomainEventData) results.Result {
+func (h * userCanVisitEventHandler) Handle(ctx context.Context, domainEventData *domain_events_base.DomainEventData) results.Result {
 
 	if domainEventData.Type != enums.UserCanVisitEvent {
 		return results.NewInvalidDomainTypeError(domainEventData.Type.String(), enums.UserCanVisitEvent.String())
@@ -89,9 +90,9 @@ func (h * userCanVisitEventHandler) Handle(domainEventData *domain_events_base.D
 		Ticket: uuid.NewString(),
 	}
 	
-	return h.Repo.Create(&participant)
+	return h.Repo.Create(ctx, &participant)
 }
 
-func (h * userCanVisitEventHandler) IsTypeOf(domainEventData *domain_events_base.DomainEventData) bool {
+func (h * userCanVisitEventHandler) IsTypeOf(ctx context.Context, domainEventData *domain_events_base.DomainEventData) bool {
 	return domainEventData.Type == enums.UserCanVisitEvent
 }

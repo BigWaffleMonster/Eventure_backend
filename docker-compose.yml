@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     networks:
-      - app-network
+      - eventura
     ports:
       - "${DB_PORT}:5432"
     volumes:
@@ -30,13 +30,71 @@ services:
     depends_on:
       - postgres
     networks:
-      - app-network
+      - eventura
     ports:
       - "${APP_PORT}:${APP_PORT}"
 
+  loki:
+    container_name: "loki"
+    image: grafana/loki:2.9.4
+    ports:
+      - "3100:3100"
+    command: 
+      - -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki-config.yml:/etc/loki/loki-config.yml
+      - loki_data:/loki
+    networks:
+      - eventura
+    restart: unless-stopped
+
+  prometheus:
+    container_name: "prometheus"
+    image: prom/prometheus:v2.47.0
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.config.file=/etc/prometheus/web.yml'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus-web.yml:/etc/prometheus/web.yml
+      - prometheus_data:/prometheus
+    networks:
+      - eventura
+    restart: unless-stopped
+
+  grafana:
+    container_name: "grafana"
+    image: grafana/grafana:10.1.5
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA__ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA__ADMIN_PASSWORD}
+      - GF_SECURITY_SECRET_KEY=${GRAFANA__SECRET_KEY}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - PROMETHEUS_USERNAME=${PROMETHEUS__USERNAME}
+      - PROMETHEUS_PASSWORD=${PROMETHEUS__PASSWORD}
+    volumes:
+      - ./datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - grafana_data:/var/lib/grafana
+    networks:
+      - eventura
+    depends_on:
+      - loki
+      - prometheus
+    restart: unless-stopped
+
 networks:
-  app-network:
+  eventura:
     driver: bridge
+    name: eventura
 
 volumes:
   postgres_data:
+  loki_data:
+  prometheus_data:
+  grafana_data:

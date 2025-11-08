@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/BigWaffleMonster/Eventure_backend/pkg/auth"
-	"github.com/BigWaffleMonster/Eventure_backend/utils"
+	"github.com/BigWaffleMonster/Eventure_backend/utils/helpers"
 )
 
-func AuthMiddleware(config utils.ServerConfig) gin.HandlerFunc {
+func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -26,7 +26,7 @@ func AuthMiddleware(config utils.ServerConfig) gin.HandlerFunc {
 			return
 		}
 
-		currentUser, result := auth.ValidateAccessToken(tokenString, config)
+		currentUser, result := auth.ValidateAccessToken(c.Request.Context(), tokenString)
 
 		if result.IsFailed {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid login or password"})
@@ -34,7 +34,7 @@ func AuthMiddleware(config utils.ServerConfig) gin.HandlerFunc {
 			return
 		}
 
-		c.Set(auth.CurrentUserVarName, currentUser)
+		helpers.SetUserID(c, currentUser.ID)
 		c.Next()
 	}
 }

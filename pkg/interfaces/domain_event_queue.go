@@ -1,6 +1,8 @@
 package interfaces
 
-type DomainEventQueue interface{
-	StartQueue()
-	StopQueue()
+import "context"
+
+type DomainEventQueue interface {
+	StartQueue(ctx context.Context)
+	StopQueue(ctx context.Context)
 }

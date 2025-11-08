@@ -1,48 +1,56 @@
 package migrations
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"time"
 
-	"github.com/BigWaffleMonster/Eventure_backend/utils"
+	"github.com/BigWaffleMonster/Eventure_backend/config"
+	sglogger "github.com/SergeiKhanlarov/seri-go-logger"
 	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func InitDB(config utils.ServerConfig) (*gorm.DB, error) {
+func InitDB(logger sglogger.Logger) *gorm.DB {
+	ctx := context.Background()
 	retries := 5
 	delay := 5 * time.Second
 
 	for retries > 0 {
 		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
-			config.DB_HOST,
-			config.DB_USER,
-			config.DB_PASSWORD,
-			config.DB_NAME,
-			config.DB_PORT,)
+			config.GetDBHost(),
+			config.GetDBUser(),
+			config.GetDBPassword(),
+			config.GetDBName(),
+			config.GetDBPort(),)
+
+		tmp := viper.AllKeys()
+		fmt.Print(tmp)
 
 		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
-			log.Println("Successfully connected to the database!")
+			logger.Info(ctx, "Successfully connected to the database!")
 		}
 
 		m := gormigrate.New(db, gormigrate.DefaultOptions, GetAllMigrations())
 		err = m.Migrate()
 
 		if err == nil {
-			log.Println("Successfully migrate!")
-			return db, nil
+			logger.Info(ctx, "Successfully migrate!")
+			return db
 		}
 
-		log.Printf("Failed to connect to database: %v. Retrying in %v... (%d attempts left)", err, delay, retries)
+		logger.Error(ctx, "Failed to connect to database: %v. Retrying in %v... (%d attempts left)", err, delay, retries)
+
 		retries--
 		time.Sleep(delay)
 	}
 
-	log.Fatalf("Failed to connect to the database after multiple retries.")
-	return nil, fmt.Errorf("failed to connect to the database after multiple retries")
+	logger.Fatal(ctx, "Failed to connect to the database after multiple retries.")
+
+	return nil
 }
 
 func GetAllMigrations() []*gormigrate.Migration {
@@ -51,6 +59,6 @@ func GetAllMigrations() []*gormigrate.Migration {
 		M250820252258_AddDomainEvents(),
 		M030920252053_UpdateRefreshToken(),
 		M030920252053_RemoveRefreshTokenFromSession(),
-		// Добавляй сюда новые миграции
+		//TODO: Добавляй сюда новые миграции
 	}
 }

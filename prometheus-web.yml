@@ -1,0 +1,2 @@
+basic_auth_users:
+  prom-user: $2a$12$RYOLz3dzRNQ9oj4SnZHTguGVj5fpidNzmZc7ECu6lwVVWDP9N6bxu

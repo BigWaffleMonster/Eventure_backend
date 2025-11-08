@@ -1,87 +1,56 @@
-# Variables
-GO := go
-APP_NAME := ""
-BINARY := bin/$(APP_NAME)
-TEST_REPORT := test-report.xml
+BIN_DIR=bin
+APP_NAME=app
+MAIN_PACKAGE=cmd/app
 
-# Default target
-.PHONY: all
-all: build
+.DEFAULT_GOAL := help
 
-# Build the application
-.PHONY: build
-build:
-	@echo "Building $(APP_NAME)..."
-	mkdir -p bin
-	$(GO) build -o $(BINARY) ./cmd/$(APP_NAME)
-	@echo "Build complete: $(BINARY)"
-
-# Run the application
-.PHONY: run
-run:
-	@echo "Running $(APP_NAME)..."
-	$(GO) run ./cmd/$(APP_NAME)
-
-# Install dependencies
-.PHONY: deps
-deps:
-	@echo "Installing dependencies..."
-	$(GO) mod tidy
-	@echo "Dependencies installed."
-
-# Format the code
-.PHONY: fmt
-fmt:
-	@echo "Formatting code..."
-	$(GO) fmt ./...
-	@echo "Code formatting complete."
-
-# Lint the code
-.PHONY: lint
-lint:
-	@echo "Linting code..."
-	golangci-lint run ./...
-	@echo "Linting complete."
-
-# Run tests
-.PHONY: test
-test:
-	@echo "Running tests..."
-	$(GO) test -v ./... -coverprofile=coverage.out
-	@echo "Tests complete."
-
-# Generate test report in JUnit format (optional)
-.PHONY: test-report
-test-report:
-	@echo "Generating test report..."
-	go install github.com/jstemmer/go-junit-report@latest
-	$(GO) test -v ./... | go-junit-report > $(TEST_REPORT)
-	@echo "Test report generated: $(TEST_REPORT)"
-
-# Clean up build artifacts
-.PHONY: clean
-clean:
-	@echo "Cleaning up..."
-	rm -rf bin/
-	rm -f coverage.out
-	@echo "Cleanup complete."
-
-# Run all checks (format, lint, test)
-.PHONY: check
-check: fmt lint test
-
-# Help command to display available targets
-.PHONY: help
 help:
-	@echo "Available targets:"
-	@echo "  all         - Build the application (default)"
-	@echo "  build       - Build the application"
-	@echo "  run         - Run the application"
-	@echo "  deps        - Install dependencies"
-	@echo "  fmt         - Format the code"
-	@echo "  lint        - Lint the code"
-	@echo "  test        - Run tests"
-	@echo "  test-report - Generate test report in JUnit format"
-	@echo "  clean       - Clean up build artifacts"
-	@echo "  check       - Run all checks (format, lint, test)"
-	@echo "  help        - Display this help message"
+	@echo "Available commands:"
+	@echo "  make build       - Build application"
+	@echo "  make run         - Build and run"
+	@echo "  make test        - Run all tests"
+	@echo "  make test-coverage - Run tests with coverage"
+	@echo "  make clean       - Clean build artifacts"
+	@echo "  make deps        - Download dependencies"
+	@echo "  make fmt         - Format code"
+	@echo "  make vet         - Vet code"
+	@echo "  make lint        - Lint code"
+	@echo "  make check       - Run fmt, vet and test"
+	@echo "  make build-prod  - Build production binary"
+
+build:
+	go build -o $(BIN_DIR)/$(APP_NAME) ./$(MAIN_PACKAGE)
+
+run: build
+	$(BIN_DIR)/$(APP_NAME)
+
+test:
+	go test ./...
+
+test-coverage:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
+
+clean:
+	if exist $(BIN_DIR) rmdir /s /q $(BIN_DIR)
+	if exist coverage.out del coverage.out
+	if exist coverage.html del coverage.html
+
+deps:
+	go mod download
+
+fmt:
+	go fmt ./...
+
+vet:
+	go vet ./...
+
+lint:
+	golangci-lint run
+
+check: fmt vet test
+
+build-prod:
+	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o $(BIN_DIR)/$(APP_NAME) ./$(MAIN_PACKAGE)
+
+.PHONY: help build run test test-coverage clean deps fmt vet lint check build-prod
