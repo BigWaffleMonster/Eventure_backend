@@ -8,6 +8,8 @@ import {
 } from 'drizzle-orm/pg-core'
 
 import { createId } from '@paralleldrive/cuid2'
+import { users } from './Users'
+import { category } from './Category'
 
 export const event = pgTable('event', {
   id: varchar('id')
@@ -30,8 +32,12 @@ export const event = pgTable('event', {
   dateCreated: timestamp({ withTimezone: true }).defaultNow(),
   dateUpdated: timestamp({ withTimezone: true }).defaultNow(),
 
-  owner: varchar('owner').notNull().unique(),
-  category: varchar('category').notNull().unique()
+  ownerId: varchar('owner_id')
+    .notNull()
+    .references(() => users.id),
+  categoryId: varchar('category_id')
+    .notNull()
+    .references(() => category.id)
 })
 
 export const eventTable = {
