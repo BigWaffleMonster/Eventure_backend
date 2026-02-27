@@ -27,7 +27,7 @@ type CreateEventRequest struct {
 	CategoryID  uuid.UUID  `json:"category_id" binding:""`
 }
 
-type CreateEventResponse struct {
+type EventResponse struct {
 	ID          uuid.UUID  `json:"id"`
 	Title       string     `json:"title"`
 	Description string     `json:"description"`

@@ -18,4 +18,6 @@ func SetupEventRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	authMiddleware := middleware.NewJWTMiddleware(jwtCfg)
 
 	r.POST("create", authMiddleware.AuthRequired(), handler.CreateEvent)
+
+	r.GET(":id", handler.GetEventByID)
 }
