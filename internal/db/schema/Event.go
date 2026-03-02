@@ -10,7 +10,7 @@ type Event struct {
 	ID          uuid.UUID  `gorm:"primaryKey;type:uuid" json:"id"`
 	Title       string     `gorm:"not null" json:"title"`
 	Description string     `gorm:"not null" json:"description"`
-	Capacity    *int       `gorm:"default:0" json:"capcity"`
+	Capacity    *int       `gorm:"default:0" json:"capacity"`
 	MaxCapacity *int       `json:"max_capacity"`
 	Location    *string    `json:"location"`
 	StartDate   time.Time  `json:"start_date"`

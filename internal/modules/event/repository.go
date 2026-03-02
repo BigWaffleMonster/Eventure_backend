@@ -6,6 +6,7 @@ import (
 	"time"
 
 	schema "github.com/BigWaffleMonster/Eventure_backend/internal/db/schema"
+	"github.com/BigWaffleMonster/Eventure_backend/internal/types"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
@@ -20,7 +21,16 @@ func NewEventRepository(db *gorm.DB) *EventRepository {
 	return &EventRepository{db: db}
 }
 
-func (r *EventRepository) GetEvents() {}
+func (r *EventRepository) GetEvents() ([]schema.Event, error) {
+	var events_raw []schema.Event
+
+	err := r.db.Preload("Category").Preload("Owner").Find(&events_raw).Error
+	if err != nil {
+		return nil, global_utils.NewAppErrorWithErr(http.StatusInternalServerError, "Ошибка получения событий", err)
+	}
+
+	return events_raw, nil
+}
 
 func (r *EventRepository) GetEventByID(id uuid.UUID) (*schema.Event, error) {
 	var event schema.Event
@@ -36,9 +46,19 @@ func (r *EventRepository) GetEventByID(id uuid.UUID) (*schema.Event, error) {
 	return &event, nil
 }
 
-func (r *EventRepository) GetUserCreatedEvents(userID string) {}
+func (r *EventRepository) GetUserCreatedEvents(userID uuid.UUID) ([]schema.Event, error) {
+	var events_raw []schema.Event
 
-func (r *EventRepository) GetUserParticipatingEvents(userID string) {}
+	err := r.db.Preload("Category").Preload("Owner").Where("owner_id = ?", userID).Find(&events_raw).Error
+	if err != nil {
+		return nil, global_utils.NewAppErrorWithErr(http.StatusInternalServerError, "Ошибка получения событий", err)
+	}
+
+	return events_raw, nil
+}
+
+// TODO
+func (r *EventRepository) GetUserParticipatingEvents(userID uuid.UUID) {}
 
 func (r *EventRepository) CreateEvent(event *CreateEventRequest, userID uuid.UUID, categoryID uuid.UUID) (*schema.Event, error) {
 	newEvent := &schema.Event{
@@ -74,4 +94,56 @@ func (r *EventRepository) GetCategoryForEventByID(id uuid.UUID) (*schema.Categor
 	}
 
 	return &category, nil
+}
+
+func (r *EventRepository) UpdateEvent(eventID uuid.UUID, userData *types.UserDataCtx, data *UpdateEventRequest) error {
+	var event schema.Event
+
+	err := r.db.Where("id = ? AND owner_id = ?", eventID, userData.UserID).First(&event).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return global_utils.NewAppError(http.StatusBadRequest, "Событие не найдена")
+		}
+		return global_utils.NewAppErrorWithErr(http.StatusBadRequest, "Ошибка поиска события", err)
+	}
+
+	if data.Title != nil {
+		event.Title = *data.Title
+	}
+	if data.Description != nil {
+		event.Description = *data.Description
+	}
+	if data.Capacity != nil {
+		event.Capacity = data.Capacity
+	}
+	if data.MaxCapacity != nil {
+		event.MaxCapacity = data.MaxCapacity
+	}
+	if data.Location != nil {
+		event.Location = data.Location
+	}
+	if data.StartDate != nil {
+		event.StartDate = *data.StartDate
+	}
+	if data.EndDate != nil {
+		event.EndDate = data.EndDate
+	}
+	if data.CategoryID != nil {
+		event.CategoryID = data.CategoryID
+	}
+
+	if err := r.db.Save(&event).Error; err != nil {
+		return global_utils.NewAppErrorWithErr(http.StatusBadRequest, "Ошибка сохранения обновлений", err)
+	}
+
+	return nil
+}
+
+func (r *EventRepository) RemoveEvent(id uuid.UUID) error {
+	err := r.db.Delete(&schema.Event{}, id).Error
+	if err != nil {
+		return global_utils.NewAppErrorWithErr(http.StatusBadRequest, "Ошибка поиска категории", err)
+	}
+
+	return nil
 }

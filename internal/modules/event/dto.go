@@ -27,6 +27,17 @@ type CreateEventRequest struct {
 	CategoryID  uuid.UUID  `json:"category_id" binding:""`
 }
 
+type UpdateEventRequest struct {
+	Title       *string    `json:"title"`
+	Description *string    `json:"description"`
+	Capacity    *int       `json:"capacity"`
+	MaxCapacity *int       `json:"max_capacity"`
+	Location    *string    `json:"location"`
+	StartDate   *time.Time `json:"start_date"`
+	EndDate     *time.Time `json:"end_date"`
+	CategoryID  *uuid.UUID `json:"category_id"`
+}
+
 type EventResponse struct {
 	ID          uuid.UUID  `json:"id"`
 	Title       string     `json:"title"`

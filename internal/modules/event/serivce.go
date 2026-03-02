@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/BigWaffleMonster/Eventure_backend/internal/types"
 	t "github.com/BigWaffleMonster/Eventure_backend/internal/types"
 	global_utils "github.com/BigWaffleMonster/Eventure_backend/internal/utils"
 	"github.com/google/uuid"
@@ -58,6 +59,36 @@ func (s *EventService) CreateEvent(req *CreateEventRequest, userDataCtx *t.UserD
 	return &careatedEvent, nil
 }
 
+func (s *EventService) GetEvents() ([]EventResponse, error) {
+	var events []EventResponse
+	events_raw, err := s.repo.GetEvents()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, event := range events_raw {
+		eventDTO := EventResponse{
+			ID:          event.ID,
+			Title:       event.Title,
+			Description: event.Description,
+			Capacity:    *event.Capacity,
+			MaxCapacity: event.MaxCapacity,
+			Location:    event.Location,
+			StartDate:   event.StartDate,
+			EndDate:     event.EndDate,
+			DateCreated: event.DateCreated,
+			DateUpdated: event.DateUpdated,
+
+			Category: CategoryResponse(event.Category),
+			Owner:    OwnerResponse{ID: event.Owner.ID, Login: event.Owner.Login, Email: event.Owner.Email},
+		}
+
+		events = append(events, eventDTO)
+	}
+
+	return events, nil
+}
+
 func (s *EventService) GetEventByID(eventID uuid.UUID) (*EventResponse, error) {
 	event, err := s.repo.GetEventByID(eventID)
 	if err != nil {
@@ -81,4 +112,52 @@ func (s *EventService) GetEventByID(eventID uuid.UUID) (*EventResponse, error) {
 	}
 
 	return &eventDTO, nil
+}
+
+func (s *EventService) GetUserCreatedEvents(userID uuid.UUID) ([]EventResponse, error) {
+	var events []EventResponse
+	events_raw, err := s.repo.GetUserCreatedEvents(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, event := range events_raw {
+		eventDTO := EventResponse{
+			ID:          event.ID,
+			Title:       event.Title,
+			Description: event.Description,
+			Capacity:    *event.Capacity,
+			MaxCapacity: event.MaxCapacity,
+			Location:    event.Location,
+			StartDate:   event.StartDate,
+			EndDate:     event.EndDate,
+			DateCreated: event.DateCreated,
+			DateUpdated: event.DateUpdated,
+
+			Category: CategoryResponse(event.Category),
+			Owner:    OwnerResponse{ID: event.Owner.ID, Login: event.Owner.Login, Email: event.Owner.Email},
+		}
+
+		events = append(events, eventDTO)
+	}
+
+	return events, nil
+}
+
+func (s *EventService) RemoveEvent(eventID uuid.UUID) error {
+	err := s.repo.RemoveEvent(eventID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *EventService) UpdateEvent(eventID uuid.UUID, userData *types.UserDataCtx, data *UpdateEventRequest) error {
+	err := s.repo.UpdateEvent(eventID, userData, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

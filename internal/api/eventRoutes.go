@@ -19,5 +19,11 @@ func SetupEventRoutes(r *gin.RouterGroup, db *gorm.DB) {
 
 	r.POST("create", authMiddleware.AuthRequired(), handler.CreateEvent)
 
+	r.GET("list", handler.GetEvents)
 	r.GET(":id", handler.GetEventByID)
+	r.GET("user-created/:id", handler.GetUserCreatedEvents)
+
+	r.DELETE(":id", authMiddleware.AuthRequired(), handler.RemoveEvent)
+
+	r.PUT(":id", authMiddleware.AuthRequired(), handler.UpdateEvent)
 }
