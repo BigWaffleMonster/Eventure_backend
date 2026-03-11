@@ -18,6 +18,7 @@ func NewParticipantHandler(service *ParticipantService) *ParticipantHandler {
 	return &ParticipantHandler{service: service}
 }
 
+// TODO test with postman
 func (h *ParticipantHandler) GetParticipantsFromEvent(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -27,21 +28,70 @@ func (h *ParticipantHandler) GetParticipantsFromEvent(c *gin.Context) {
 
 	participants, err := h.service.GetParticipantsFromEvent(eventID)
 	if err != nil {
-		global_utils.SendError(c, global_utils.ErrBadRequest)
+		global_utils.SendError(c, err)
 		return
 	}
 
 	global_utils.SendSuccess(c, participants, "")
 }
 
-func (r *ParticipantHandler) AddParticipantToEvent(userID, eventID uuid.UUID) error {
-	return nil
+// TODO test with postman and go through code one more time
+func (h *ParticipantHandler) AddParticipantToEvent(c *gin.Context) {
+	eventID, err := uuid.Parse(c.Query("event_id"))
+	if err != nil {
+		global_utils.SendError(c, global_utils.ErrBadRequest)
+		return
+	}
+
+	userID, err := uuid.Parse(c.Query("user_id"))
+	if err != nil {
+		global_utils.SendError(c, global_utils.ErrBadRequest)
+		return
+	}
+
+	err = h.service.AddParticipantToEvent(userID, eventID)
+	if err != nil {
+		global_utils.SendError(c, err)
+		return
+	}
+
+	global_utils.SendSuccess(c, "", "Successfully added to event!")
 }
 
-func (r *ParticipantHandler) RemoveParticipantFromEvent(userID, eventID uuid.UUID) error {
-	return nil
+func (h *ParticipantHandler) RemoveParticipantFromEvent(c *gin.Context) {
+	eventID, err := uuid.Parse(c.Query("event_id"))
+	if err != nil {
+		global_utils.SendError(c, global_utils.ErrBadRequest)
+		return
+	}
+
+	userID, err := uuid.Parse(c.Query("user_id"))
+	if err != nil {
+		global_utils.SendError(c, global_utils.ErrBadRequest)
+		return
+	}
+
+	err = h.service.RemoveParticipantFromEvent(userID, eventID)
+	if err != nil {
+		global_utils.SendError(c, err)
+		return
+	}
+
+	global_utils.SendSuccess(c, "", "Successfully removed from event!")
 }
 
-func (r *ParticipantHandler) RemoveAllParticipantsFromEvent(eventID uuid.UUID) error {
-	return nil
+func (h *ParticipantHandler) RemoveAllParticipantsFromEvent(c *gin.Context) {
+	eventID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		global_utils.SendError(c, global_utils.ErrBadRequest)
+		return
+	}
+
+	err = h.service.RemoveAllParticipantsFromEvent(eventID)
+	if err != nil {
+		global_utils.SendError(c, err)
+		return
+	}
+
+	global_utils.SendSuccess(c, "", "Successfully removed all participants from event!")
 }

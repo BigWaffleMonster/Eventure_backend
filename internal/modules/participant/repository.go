@@ -28,8 +28,8 @@ func (r *ParticipantRepository) GetParticipantsFromEvent(eventID uuid.UUID) ([]s
 	var participants []schema.Participant
 
 	result := r.db.
-		Where("event_id = ?", eventID).
 		Preload("User").
+		Where("event_id = ?", eventID).
 		Find(&participants)
 
 	if result.Error != nil {

@@ -93,6 +93,22 @@ func (h *EventHandler) GetUserCreatedEvents(c *gin.Context) {
 	global_utils.SendSuccess(c, event, "")
 }
 
+func (h *EventHandler) GetUserParticipatingEvents(c *gin.Context) {
+	userID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		global_utils.SendError(c, global_utils.ErrBadRequest)
+		return
+	}
+
+	event, err := h.service.GetUserParticipantingEvents(userID)
+	if err != nil {
+		global_utils.SendError(c, err)
+		return
+	}
+
+	global_utils.SendSuccess(c, event, "")
+}
+
 func (h *EventHandler) RemoveEvent(c *gin.Context) {
 	eventID, err := uuid.Parse(c.Param("id"))
 	if err != nil {

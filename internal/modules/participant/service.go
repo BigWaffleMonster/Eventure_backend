@@ -1,6 +1,10 @@
 package participant
 
 import (
+	"net/http"
+
+	"github.com/BigWaffleMonster/Eventure_backend/internal/utils"
+
 	"github.com/google/uuid"
 )
 
@@ -9,7 +13,6 @@ import (
 
 // "github.com/BigWaffleMonster/Eventure_backend/internal/types"
 // t "github.com/BigWaffleMonster/Eventure_backend/internal/types"
-// global_utils "github.com/BigWaffleMonster/Eventure_backend/internal/utils"
 // "github.com/google/uuid"
 
 type ParticipantService struct {
@@ -20,9 +23,9 @@ func NewParticipantService(repo *ParticipantRepository) *ParticipantService {
 	return &ParticipantService{repo: repo}
 }
 
-func (r *ParticipantService) GetParticipantsFromEvent(eventID uuid.UUID) ([]ParticipantResponse, error) {
+func (s *ParticipantService) GetParticipantsFromEvent(eventID uuid.UUID) ([]ParticipantResponse, error) {
 	var participants []ParticipantResponse
-	participant_raw, err := r.repo.GetParticipantsFromEvent(eventID)
+	participant_raw, err := s.repo.GetParticipantsFromEvent(eventID)
 	if err != nil {
 		return nil, err
 	}
@@ -45,14 +48,54 @@ func (r *ParticipantService) GetParticipantsFromEvent(eventID uuid.UUID) ([]Part
 	return participants, nil
 }
 
-func (r *ParticipantService) AddParticipantToEvent(userID, eventID uuid.UUID) error {
+func (s *ParticipantService) AddParticipantToEvent(userID, eventID uuid.UUID) error {
+	err := s.repo.CheckUserExistence(userID)
+	if err != nil {
+		return err
+	}
+
+	err = s.repo.CheckIfUserParticipant(userID, eventID)
+	if err != nil {
+		return err
+	}
+
+	cap, maxCap, err := s.repo.GetEventCapacity(eventID)
+	if err != nil {
+		return err
+	}
+
+	if maxCap != nil {
+		if int64(*cap) >= int64(*maxCap) {
+			return utils.NewAppErrorWithErr(
+				http.StatusBadRequest,
+				"Event has reached maximum capacity",
+				nil,
+			)
+		}
+	}
+
+	err = s.repo.AddParticipantToEvent(userID, eventID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (r *ParticipantService) RemoveParticipantFromEvent(userID, eventID uuid.UUID) error {
+func (s *ParticipantService) RemoveParticipantFromEvent(userID, eventID uuid.UUID) error {
+	err := s.repo.RemoveParticipantFromEvent(userID, eventID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (r *ParticipantService) RemoveAllParticipantsFromEvent(eventID uuid.UUID) error {
+func (s *ParticipantService) RemoveAllParticipantsFromEvent(eventID uuid.UUID) error {
+	err := s.repo.RemoveAllParticipantsFromEvent(eventID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

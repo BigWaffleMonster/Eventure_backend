@@ -22,7 +22,7 @@ func main() {
 	log.Println("✅ Подключение к БД установлено")
 
 	router := api.InitRouter(config, db)
-	addr := fmt.Sprintf(":%s", config.Server.Port)
+	addr := fmt.Sprintf("localhost:%s", config.Server.Port)
 
 	log.Printf("🚀 Сервер запущен на http://localhost%s", addr)
 	if err := router.Run(addr); err != nil {

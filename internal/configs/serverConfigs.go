@@ -37,7 +37,7 @@ func InitConfig() (*Config, error) {
 		return nil, err
 	}
 
-	var config = Config{
+	config := Config{
 		Server: ServerConfig{
 			Port:           getEnv("PORT", "8080"),
 			Mode:           getEnv("GIN_MODE", "debug"),

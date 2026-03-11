@@ -144,6 +144,37 @@ func (s *EventService) GetUserCreatedEvents(userID uuid.UUID) ([]EventResponse, 
 	return events, nil
 }
 
+func (s *EventService) GetUserParticipantingEvents(userID uuid.UUID) ([]EventResponse, error) {
+	var events []EventResponse
+	events_raw, err := s.repo.GetUserParticipatingEvents(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, participant := range events_raw {
+		event := participant.Event
+		eventDTO := EventResponse{
+			ID:          event.ID,
+			Title:       event.Title,
+			Description: event.Description,
+			Capacity:    *event.Capacity,
+			MaxCapacity: event.MaxCapacity,
+			Location:    event.Location,
+			StartDate:   event.StartDate,
+			EndDate:     event.EndDate,
+			DateCreated: event.DateCreated,
+			DateUpdated: event.DateUpdated,
+
+			Category: CategoryResponse(event.Category),
+			Owner:    OwnerResponse{ID: event.Owner.ID, Login: event.Owner.Login, Email: event.Owner.Email},
+		}
+
+		events = append(events, eventDTO)
+	}
+
+	return events, nil
+}
+
 func (s *EventService) RemoveEvent(eventID uuid.UUID) error {
 	err := s.repo.RemoveEvent(eventID)
 	if err != nil {

@@ -106,25 +106,31 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie(
-		"access_token",
-		accessToken,
-		int(h.service.jwtCfg.AccessTokenExp.Seconds()),
-		"/",
-		"",
-		false, // secure: true только для HTTPS
-		true,  // httpOnly: нельзя прочитать через JS
-	)
+	c.SetCookieData(&http.Cookie{
+		Name:        "access_token",
+		Value:       accessToken,
+		Path:        "/",
+		Domain:      "",
+		MaxAge:      int(h.service.jwtCfg.AccessTokenExp.Seconds()),
+		Secure:      false,
+		HttpOnly:    true,
+		SameSite:    http.SameSiteDefaultMode,
+		Partitioned: false,
+		// Expires:  "",
+	})
 
-	c.SetCookie(
-		"refresh_token",
-		refreshToken,
-		int(h.service.jwtCfg.RefreshTokenExp.Seconds()),
-		"/",
-		"",
-		false, // secure: true только для HTTPS
-		true,  // httpOnly: нельзя прочитать через JS
-	)
+	c.SetCookieData(&http.Cookie{
+		Name:        "refresh_token",
+		Value:       refreshToken,
+		Path:        "/",
+		Domain:      "",
+		MaxAge:      int(h.service.jwtCfg.RefreshTokenExp.Seconds()),
+		Secure:      false,
+		HttpOnly:    true,
+		SameSite:    http.SameSiteDefaultMode,
+		Partitioned: false,
+		// Expires:  "",
+	})
 
 	// 6. Ответ клиенту
 	c.JSON(http.StatusOK, TokenResponse{
@@ -143,7 +149,6 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Вы успешно вышли"})
 }
 
-// !TODO check Refresh later
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	refreshTokenString, err := c.Cookie("refresh_token")
 	if err != nil {

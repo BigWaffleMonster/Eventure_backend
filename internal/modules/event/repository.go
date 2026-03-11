@@ -57,8 +57,16 @@ func (r *EventRepository) GetUserCreatedEvents(userID uuid.UUID) ([]schema.Event
 	return events_raw, nil
 }
 
-// TODO
-func (r *EventRepository) GetUserParticipatingEvents(userID uuid.UUID) {}
+func (r *EventRepository) GetUserParticipatingEvents(userID uuid.UUID) ([]schema.Participant, error) {
+	var participants_raw []schema.Participant
+
+	err := r.db.Preload("Event").Preload("User").Preload("Event.Category").Preload("Event.Owner").Where("user_id = ?", userID).Find(&participants_raw).Error
+	if err != nil {
+		return nil, global_utils.NewAppErrorWithErr(http.StatusInternalServerError, "Ошибка получения событий", err)
+	}
+
+	return participants_raw, nil
+}
 
 func (r *EventRepository) CreateEvent(event *CreateEventRequest, userID uuid.UUID, categoryID uuid.UUID) (*schema.Event, error) {
 	newEvent := &schema.Event{

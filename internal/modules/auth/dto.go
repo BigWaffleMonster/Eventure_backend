@@ -11,7 +11,7 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-// login
+// login here only login without email because we dont care login or email. If input is login use login in input is email use email to login
 type LoginRequest struct {
 	Login    string `json:"login" binding:"required"`
 	Password string `json:"password" binding:"required,min=8"`
