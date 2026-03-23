@@ -68,21 +68,23 @@ func (r *EventRepository) GetUserParticipatingEvents(userID uuid.UUID) ([]schema
 	return participants_raw, nil
 }
 
-func (r *EventRepository) CreateEvent(event *CreateEventRequest, userID uuid.UUID, categoryID uuid.UUID) (*schema.Event, error) {
+func (r *EventRepository) CreateEvent(event *CreateEventRequest, userID uuid.UUID, categoryID uuid.UUID, coverURL *string) (*schema.Event, error) {
 	newEvent := &schema.Event{
 		ID:          uuid.New(),
 		Title:       event.Title,
 		Description: event.Description,
 		MaxCapacity: event.MaxCapacity,
-		Location:    event.Location,
+		Location:    (schema.Location)(event.Location),
 		StartDate:   event.StartDate,
 		EndDate:     event.EndDate,
 
 		DateCreated: time.Now(),
 		DateUpdated: time.Now(),
 
-		CategoryID: &event.CategoryID,
+		CategoryID: event.CategoryID,
 		OwnerID:    userID,
+
+		Cover: coverURL,
 	}
 
 	if err := r.db.Create(newEvent).Error; err != nil {
@@ -122,22 +124,22 @@ func (r *EventRepository) UpdateEvent(eventID uuid.UUID, userData *types.UserDat
 		event.Description = *data.Description
 	}
 	if data.Capacity != nil {
-		event.Capacity = data.Capacity
+		event.Capacity = *data.Capacity
 	}
 	if data.MaxCapacity != nil {
-		event.MaxCapacity = data.MaxCapacity
+		event.MaxCapacity = *data.MaxCapacity
 	}
 	if data.Location != nil {
-		event.Location = data.Location
+		event.Location = (schema.Location)(event.Location)
 	}
 	if data.StartDate != nil {
 		event.StartDate = *data.StartDate
 	}
 	if data.EndDate != nil {
-		event.EndDate = data.EndDate
+		event.EndDate = *data.EndDate
 	}
 	if data.CategoryID != nil {
-		event.CategoryID = data.CategoryID
+		event.CategoryID = *data.CategoryID
 	}
 
 	if err := r.db.Save(&event).Error; err != nil {

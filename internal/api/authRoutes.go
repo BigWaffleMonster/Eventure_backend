@@ -15,8 +15,8 @@ func SetupAuthRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	service := user_repo.NewAuthService(repo, jwtCfg)
 	handler := user_repo.NewAuthHandler(service)
 
-	r.POST("sign-up", handler.CreateUser)
-	r.POST("sign-in", handler.Login)
-	r.POST("logout", handler.Logout)
-	r.POST("refresh-token", handler.RefreshToken)
+	r.POST("sign-up", handler.CreateUser)         // imp
+	r.POST("sign-in", handler.Login)              // imp
+	r.POST("logout", handler.Logout)              // not-imp
+	r.POST("refresh-token", handler.RefreshToken) // imp
 }

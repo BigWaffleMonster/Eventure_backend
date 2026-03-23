@@ -1,7 +1,11 @@
 package event
 
 import (
+	"io/fs"
+	"mime/multipart"
 	"net/http"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/BigWaffleMonster/Eventure_backend/internal/types"
@@ -18,11 +22,9 @@ func NewEventService(repo *EventRepository) *EventService {
 	return &EventService{repo: repo}
 }
 
-func (s *EventService) CreateEvent(req *CreateEventRequest, userDataCtx *t.UserDataCtx) (*EventResponse, error) {
-	if req.EndDate != nil {
-		if req.StartDate.After(*req.EndDate) || req.StartDate.Equal(*req.EndDate) {
-			return nil, global_utils.NewAppError(http.StatusBadRequest, "дата начала должна быть раньше даты окончания")
-		}
+func (s *EventService) CreateEvent(req *CreateEventRequest, userDataCtx *t.UserDataCtx, coverURL *string) (*EventResponse, error) {
+	if req.StartDate.After(req.EndDate) || req.StartDate.Equal(req.EndDate) {
+		return nil, global_utils.NewAppError(http.StatusBadRequest, "дата начала должна быть раньше даты окончания")
 	}
 
 	if req.StartDate.Before(time.Now()) {
@@ -34,7 +36,7 @@ func (s *EventService) CreateEvent(req *CreateEventRequest, userDataCtx *t.UserD
 		return nil, err
 	}
 
-	event, err := s.repo.CreateEvent(req, userDataCtx.UserID, category.ID)
+	event, err := s.repo.CreateEvent(req, userDataCtx.UserID, category.ID, coverURL)
 	if err != nil {
 		return nil, err
 	}
@@ -45,9 +47,11 @@ func (s *EventService) CreateEvent(req *CreateEventRequest, userDataCtx *t.UserD
 		Description: event.Description,
 		Capacity:    0,
 		MaxCapacity: event.MaxCapacity,
-		Location:    event.Location,
+		Location:    (location)(event.Location),
 		StartDate:   event.StartDate,
 		EndDate:     event.EndDate,
+
+		Cover: event.Cover,
 
 		DateCreated: time.Now(),
 		DateUpdated: time.Now(),
@@ -71,9 +75,9 @@ func (s *EventService) GetEvents() ([]EventResponse, error) {
 			ID:          event.ID,
 			Title:       event.Title,
 			Description: event.Description,
-			Capacity:    *event.Capacity,
+			Capacity:    event.Capacity,
 			MaxCapacity: event.MaxCapacity,
-			Location:    event.Location,
+			Location:    (location)(event.Location),
 			StartDate:   event.StartDate,
 			EndDate:     event.EndDate,
 			DateCreated: event.DateCreated,
@@ -99,9 +103,9 @@ func (s *EventService) GetEventByID(eventID uuid.UUID) (*EventResponse, error) {
 		ID:          eventID,
 		Title:       event.Title,
 		Description: event.Description,
-		Capacity:    *event.Capacity,
+		Capacity:    event.Capacity,
 		MaxCapacity: event.MaxCapacity,
-		Location:    event.Location,
+		Location:    (location)(event.Location),
 		StartDate:   event.StartDate,
 		EndDate:     event.EndDate,
 		DateCreated: event.DateCreated,
@@ -126,9 +130,9 @@ func (s *EventService) GetUserCreatedEvents(userID uuid.UUID) ([]EventResponse, 
 			ID:          event.ID,
 			Title:       event.Title,
 			Description: event.Description,
-			Capacity:    *event.Capacity,
+			Capacity:    event.Capacity,
 			MaxCapacity: event.MaxCapacity,
-			Location:    event.Location,
+			Location:    (location)(event.Location),
 			StartDate:   event.StartDate,
 			EndDate:     event.EndDate,
 			DateCreated: event.DateCreated,
@@ -157,9 +161,9 @@ func (s *EventService) GetUserParticipantingEvents(userID uuid.UUID) ([]EventRes
 			ID:          event.ID,
 			Title:       event.Title,
 			Description: event.Description,
-			Capacity:    *event.Capacity,
+			Capacity:    event.Capacity,
 			MaxCapacity: event.MaxCapacity,
-			Location:    event.Location,
+			Location:    (location)(event.Location),
 			StartDate:   event.StartDate,
 			EndDate:     event.EndDate,
 			DateCreated: event.DateCreated,
@@ -191,4 +195,36 @@ func (s *EventService) UpdateEvent(eventID uuid.UUID, userData *types.UserDataCt
 	}
 
 	return nil
+}
+
+func (s *EventService) SaveFile(fileHeader *multipart.FileHeader, SaveUploadedFile func(file *multipart.FileHeader, dst string, perm ...fs.FileMode) error) (*string, error) {
+	var coverURL string
+	if fileHeader != nil {
+		file, err := fileHeader.Open()
+		if err != nil {
+			return nil, global_utils.NewAppErrorWithErr(http.StatusBadRequest, "Ошибка открытия файла", err)
+		}
+		defer file.Close()
+
+		ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+		allowedExts := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".webp": true}
+		if !allowedExts[ext] {
+			return nil, global_utils.NewAppErrorWithErr(http.StatusBadRequest, "Неподдерживаемый формат файла", err)
+		}
+
+		if fileHeader.Size > 5<<20 { // 5MB
+			return nil, global_utils.NewAppErrorWithErr(http.StatusBadRequest, "Файл слишком большой (макс. 5МБ)", err)
+		}
+
+		filename := uuid.New().String() + ext
+		savePath := filepath.Join("uploads", "covers", filename)
+
+		if err := SaveUploadedFile(fileHeader, savePath); err != nil {
+			return nil, global_utils.NewAppErrorWithErr(http.StatusBadRequest, "Ошибка сохранения", err)
+		}
+
+		coverURL = "/uploads/covers/" + filename
+	}
+
+	return &coverURL, nil
 }

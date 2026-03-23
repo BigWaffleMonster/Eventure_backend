@@ -2,7 +2,8 @@ package auth
 
 // createUser
 type RegisterRequest struct {
-	Email    string `json:"email" binding:"required,email"`
+	Email string `json:"email" binding:"required,email"`
+	// Login    string `json:"login" binding:"required"`
 	Password string `json:"password" binding:"required,min=8"`
 }
 

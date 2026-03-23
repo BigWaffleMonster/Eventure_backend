@@ -1,7 +1,7 @@
 .env
 
 postgres_data
-
+uploads
 # cmd/*
 # !cmd/app/
 # !cmd/*.go

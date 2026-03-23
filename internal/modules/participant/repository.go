@@ -111,7 +111,7 @@ func (r *ParticipantRepository) GetEventCapacity(eventID uuid.UUID) (capacity, m
 		)
 	}
 
-	return event.Capacity, event.MaxCapacity, nil
+	return &event.Capacity, &event.MaxCapacity, nil
 }
 
 func (r *ParticipantRepository) CheckUserExistence(userID uuid.UUID) error {

@@ -1,6 +1,7 @@
 package event
 
 import (
+	"fmt"
 	"net/http"
 
 	utils "github.com/BigWaffleMonster/Eventure_backend/internal/modules/event/utils"
@@ -18,7 +19,7 @@ func NewEventHandler(service *EventService) *EventHandler {
 }
 
 func (h *EventHandler) CreateEvent(c *gin.Context) {
-	var req CreateEventRequest
+	var form CreateEventForm
 
 	userDataCtx, err := utils.GetUserDataFromCtx(c)
 	if err != nil {
@@ -31,7 +32,8 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 		return
 	}
 
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&form); err != nil {
+		fmt.Print(err)
 		global_utils.SendError(c, global_utils.NewAppErrorWithErr(
 			http.StatusBadRequest,
 			"Ошибка валидации",
@@ -41,7 +43,46 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 		return
 	}
 
-	newEvent, err := h.service.CreateEvent(&req, userDataCtx)
+	categoryID, err := uuid.Parse(form.CategoryID)
+	if err != nil {
+		global_utils.SendError(c, global_utils.NewAppErrorWithErr(
+			http.StatusBadRequest,
+			"Неверный формат CategoryID:",
+			err,
+		))
+	}
+
+	req := CreateEventRequest{
+		Title:       form.Title,
+		Description: form.Description,
+		CategoryID:  categoryID,
+		StartDate:   form.StartDate,
+		EndDate:     form.EndDate,
+		MaxCapacity: form.MaxCapacity,
+		Location: location{
+			Lat:     form.LocationLat,
+			Lng:     form.LocationLng,
+			PlaceID: form.LocationPlaceID,
+		},
+	}
+
+	if form.LocationAddress != "" {
+		req.Location.Address = &form.LocationAddress
+	}
+
+	var coverURL *string
+	if fileHeader, err := c.FormFile("cover"); err == nil {
+		fmt.Print("File no uploaded")
+
+		coverURL, err = h.service.SaveFile(fileHeader, c.SaveUploadedFile)
+		if err != nil {
+			global_utils.SendError(c, err)
+
+			return
+		}
+	}
+
+	newEvent, err := h.service.CreateEvent(&req, userDataCtx, coverURL)
 	if err != nil {
 		global_utils.SendError(c, err)
 

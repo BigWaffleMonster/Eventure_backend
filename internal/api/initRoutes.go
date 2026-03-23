@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -16,7 +15,6 @@ func InitRouter(config *c.Config, db *gorm.DB) *gin.Engine {
 	gin.SetMode(config.Server.Mode)
 	r := gin.Default()
 
-	fmt.Print(setupCORS(config.Server.AllowedOrigins), "ETST")
 	r.Use(setupCORS(config.Server.AllowedOrigins))
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
@@ -40,7 +38,6 @@ func InitRouter(config *c.Config, db *gorm.DB) *gin.Engine {
 }
 
 func setupCORS(allowedOrigins []string) gin.HandlerFunc {
-	fmt.Print(allowedOrigins)
 	return cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},

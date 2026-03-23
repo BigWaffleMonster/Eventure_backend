@@ -1,7 +1,6 @@
 package configs
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -14,6 +13,7 @@ type Config struct {
 }
 
 type ServerConfig struct {
+	Host           string
 	Port           string
 	Mode           string
 	AllowedOrigins []string
@@ -39,6 +39,7 @@ func InitConfig() (*Config, error) {
 
 	config := Config{
 		Server: ServerConfig{
+			Host:           getEnv("HOST", "localhost"),
 			Port:           getEnv("PORT", "8080"),
 			Mode:           getEnv("GIN_MODE", "debug"),
 			AllowedOrigins: viper.GetStringSlice("SERVER_ALLOWED_ORIGINS"),
@@ -52,8 +53,6 @@ func InitConfig() (*Config, error) {
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 	}
-
-	fmt.Print(config.Server.AllowedOrigins, "JEHFWEFHI#@*)*IOUJKH")
 
 	if len(config.Server.AllowedOrigins) == 0 {
 		config.Server.AllowedOrigins = []string{"http://localhost:3000", "http://127.0.0.1:3000"}
