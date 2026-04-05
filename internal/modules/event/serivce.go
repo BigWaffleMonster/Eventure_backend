@@ -63,9 +63,9 @@ func (s *EventService) CreateEvent(req *CreateEventRequest, userDataCtx *t.UserD
 	return &careatedEvent, nil
 }
 
-func (s *EventService) GetEvents() ([]EventResponse, error) {
+func (s *EventService) GetEvents(params *PaginationParams) (*EventResponseWithTotal, error) {
 	var events []EventResponse
-	events_raw, err := s.repo.GetEvents()
+	events_raw, total,  err := s.repo.GetEvents(params)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,12 @@ func (s *EventService) GetEvents() ([]EventResponse, error) {
 		events = append(events, eventDTO)
 	}
 
-	return events, nil
+	resp := EventResponseWithTotal{
+		Events: events,
+		Total:  *total,
+	}
+
+	return &resp, nil
 }
 
 func (s *EventService) GetEventByID(eventID uuid.UUID) (*EventResponse, error) {

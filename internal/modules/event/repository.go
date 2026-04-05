@@ -21,15 +21,18 @@ func NewEventRepository(db *gorm.DB) *EventRepository {
 	return &EventRepository{db: db}
 }
 
-func (r *EventRepository) GetEvents() ([]schema.Event, error) {
+func (r *EventRepository) GetEvents(params *PaginationParams) ([]schema.Event, *int64, error) {
 	var events_raw []schema.Event
+	var total int64
 
-	err := r.db.Preload("Category").Preload("Owner").Find(&events_raw).Error
+	r.db.Model(&schema.Event{}).Count(&total)
+
+	err := r.db.Preload("Category").Preload("Owner").Offset(params.Offset).Limit(params.Limit).Find(&events_raw).Error
 	if err != nil {
-		return nil, global_utils.NewAppErrorWithErr(http.StatusInternalServerError, "Ошибка получения событий", err)
+		return nil, nil, global_utils.NewAppErrorWithErr(http.StatusInternalServerError, "Ошибка получения событий", err)
 	}
 
-	return events_raw, nil
+	return events_raw, &total, nil
 }
 
 func (r *EventRepository) GetEventByID(id uuid.UUID) (*schema.Event, error) {

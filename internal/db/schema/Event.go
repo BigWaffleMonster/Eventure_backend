@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,3 +35,20 @@ type Location struct {
 	PlaceID int     `json:"place_id"`
 	Address *string `json:"address"`
 }
+
+func (l *Location) Scan(value any) error {
+	if value == nil {
+		return nil
+	}
+
+	bytes, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("failed to unmarshal Location: %v", value)
+	}
+
+	return json.Unmarshal(bytes, l)
+}
+
+// func (l Location) Value() (driver.Value, error) {
+// 	return json.Marshal(l)
+// }

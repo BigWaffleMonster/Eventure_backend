@@ -93,13 +93,25 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 }
 
 func (h *EventHandler) GetEvents(c *gin.Context) {
-	events, err := h.service.GetEvents()
+	var query PaginationParams
+
+	if err := c.ShouldBindQuery(&query); err != nil {
+		global_utils.SendError(c, global_utils.NewAppErrorWithErr(
+			http.StatusBadRequest,
+			"Ошибка контекста",
+			err,
+		))
+
+		return
+	}
+
+	data, err := h.service.GetEvents(&query)
 	if err != nil {
 		global_utils.SendError(c, global_utils.ErrBadRequest)
 		return
 	}
 
-	global_utils.SendSuccess(c, events, "")
+	global_utils.SendSuccess(c, data, "")
 }
 
 func (h *EventHandler) GetEventByID(c *gin.Context) {

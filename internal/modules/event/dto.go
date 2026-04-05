@@ -60,7 +60,7 @@ type EventResponse struct {
 	ID          uuid.UUID `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Capacity    int       `json:"capcity"`
+	Capacity    int       `json:"capacity"`
 	MaxCapacity int       `json:"max_capacity"`
 	Location    location  `json:"location"`
 	StartDate   time.Time `json:"start_date"`
@@ -72,6 +72,16 @@ type EventResponse struct {
 
 	Category CategoryResponse
 	Owner    OwnerResponse
+}
+
+type EventResponseWithTotal struct {
+	Events []EventResponse `json:"events"`
+	Total  int64           `json:"total"`
+}
+
+type PaginationParams struct {
+	Limit  int `form:"limit" binding:"min=1"`
+	Offset int `form:"offset" binding:"min=0,max=100"`
 }
 
 type ErrorResponse struct {
